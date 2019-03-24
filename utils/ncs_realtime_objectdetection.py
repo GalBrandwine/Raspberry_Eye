@@ -4,7 +4,7 @@
 
 # import the necessary packages
 from mvnc import mvncapi as mvnc
-from imutils.video import VideoStream
+from imutils.video import VideoStream, WebcamVideoStream
 from imutils.video import FPS
 import argparse
 import numpy as np
@@ -130,7 +130,8 @@ graph = device.AllocateGraph(graph_in_memory)
 # open a pointer to the video stream thread and allow the buffer to
 # start to fill, then start the FPS counter
 print("[INFO] starting the video stream and FPS counter...")
-vs = VideoStream(usePiCamera=False).start()
+# vs = VideoStream(usePiCamera=False).start()
+vs = WebcamVideoStream(src=0).start()
 time.sleep(1)
 fps = FPS().start()
 
