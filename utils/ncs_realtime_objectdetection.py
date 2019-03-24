@@ -130,7 +130,7 @@ graph = device.AllocateGraph(graph_in_memory)
 # open a pointer to the video stream thread and allow the buffer to
 # start to fill, then start the FPS counter
 print("[INFO] starting the video stream and FPS counter...")
-vs = VideoStream(usePiCamera=True).start()
+vs = VideoStream(usePiCamera=False).start()
 time.sleep(1)
 fps = FPS().start()
 
