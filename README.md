@@ -1,14 +1,15 @@
 # Raspberry Eye is (smart ip camera) platform for deep learning models implementations 
-By acomplishing an IoT OOP drived smart ip camera, i can now design new networks, train them, and compile them to 'graph's for working with tha Movidius ncs
+By acomplishing an IoT smart ip camera, i can now design new networks, train them, and compile them to 'graph's for working with tha Movidius ncs
+
 This project dedicated to Tom & Mufasa, my pets :)
 
 
 ## Intro:
-After learning Deep Learning from scratch (DL4CV amazing book), and experiencing with Image Processing projects (image_tracking, helloPy) , i’ve decided it is time to combine them all together.
+After learning Deep Learning from scratch ([DL4CV amazing book](https://www.pyimagesearch.com/deep-learning-computer-vision-python-book/)), and experiencing with Image Processing projects ([image_tracking](https://youtu.be/GF0xc0aUvpI), [helloPy](https://github.com/GalBrandwine/HalloPy)) , i’ve decided it is time to combine them all together.
 
 
 ## The goal:
-build Smart IP camera that will recognize my pets, that is gimleised and controllable via a web interface (simple)
+To build Smart IP camera that will recognize my pets, that is gimbalised and controllable via a web interface (simple)
 
 
 ## Project components:
@@ -20,6 +21,7 @@ build Smart IP camera that will recognize my pets, that is gimleised and control
 
 
 ## Project Requirement specifications:
+* OOP driven
 * git managed
 * preparing unitests and test suites.
 * Raspberry_Eye web interface available from all the NET
