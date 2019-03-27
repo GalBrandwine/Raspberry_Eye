@@ -1,5 +1,5 @@
 # Raspberry Eye is (smart ip camera) platform for deep learning models implementations 
-By acomplishing an IoT smart ip camera, i can now design new networks, train them, and compile them to 'graph's for working with tha Movidius ncs
+By accomplishing an IoT smart ip camera, i can now design new Newral network models, train, and compile them to 'graph's for working with tha Movidius ncs
 
 This project dedicated to Tom & Mufasa, my pets :)
 
