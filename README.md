@@ -63,11 +63,11 @@ To build Smart IP camera that will recognize my pets, that is gimbalised and con
 
 
 ## Building the camera gimbal module.
-* Allow movement in 3 axes.
+* Allow 3 dof movement.
 * Send gimbal position as feedback
 
 
-# ___TEMPORARY README, work in progress___
+# ___TEMPORARY README, work in progress:___
   # Flask video streamer
   Video streamer with image processing capabilities.
 
