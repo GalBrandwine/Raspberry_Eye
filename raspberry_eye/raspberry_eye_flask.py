@@ -1,8 +1,9 @@
 # from RPIO import PWM
+
 from flask import Flask
 from flask import render_template
 from flask import Response
-from utils.camera import VideoCamera
+from utils.simple_camera import SimpleCamera
 
 app = Flask(__name__)
 
@@ -59,7 +60,9 @@ def video_feed():
     """Entering this url, initiate VideoCamera object, that'll capture images from camera
      and stream them back to web-page.
      """
-    return Response(gen(VideoCamera()),
+
+    # TODO: add global flag for determining which camera will be deployed: simple or smart.
+    return Response(gen(SimpleCamera()),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
@@ -114,7 +117,7 @@ def manual(motor, pulsewidth):
 
 
 # Clean everything up when the app exits
-# atexit.register(cleanup)
+#atexit.register(cleanup)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8000, debug=True)

@@ -1,10 +1,11 @@
-"""A special VideoCamera, suppose to be optimised and threaded using Pyimagesearch's imutils. """
+"""A simple webcam,
+ get video feed from camera, compute FPS, and return the captured frame suppose to be optimised and threaded using Pyimagesearch's imutils. """
 from __future__ import print_function
 
 import logging
+# Thought to use WebcamVideoStream from imutils, but there's no need to be threaded
 from imutils.video import WebcamVideoStream
 from imutils.video import FPS
-import imutils
 import cv2
 
 # vs = WebcamVideoStream(src=0).start()
@@ -44,38 +45,44 @@ ch.setFormatter(formatter)
 camera_logger.addHandler(ch)
 
 
-class VideoCamera(object):
+class SimpleCamera(object):
     def __init__(self):
         """Using OpenCV to capture from device 0. If you have trouble capturing
-        from a webcam, comment the line below out and use a video file
+        from a Web-cam, comment the line below out and use a video file
         instead.
         """
         self.logger = logging.getLogger('camera_handler')
         self.video = cv2.VideoCapture(0)
 
-        # Threaded attempt for frame streaming, maybe not nessesary.
+        # Threaded attempt for frame streaming, maybe not necessary.
         # self.video = WebcamVideoStream(src=0).start()
 
         # Get time of initiation.
         self.fps = FPS().start()
 
-        # If you decide to use video.mp4, you must have this file in the folder
-        # as the main.py.
-        # self.video = cv2.VideoCapture('video.mp4')
-
     def __del__(self):
-        self.video.release()
+        # self.video.release()
+        self.video.stop()
 
     def get_frame(self):
-        success, image = self.video.read()
-        if success is True:
-            """Update FPS, and incode recieved frame. """
+        ret, image = self.video.read()
+        # image = self.video.read()
+
+        if image is not None:
+            """Update FPS, and incode received frame. """
             self.fps.update()
             # TODO: add self.fps.fps() to image, if flagged raised.
 
             # We are using Motion JPEG, but OpenCV defaults to capture raw images,
             # so we must encode it into JPEG in order to correctly display the
             # video stream.
+
+            # display a piece of text to the frame (so we can benchmark
+            # fairly against the fast method)
+            self.fps.stop()
+            cv2.putText(image, "FPS: {}".format(self.fps.fps()), (10, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+
             ret, jpeg = cv2.imencode('.jpg', image)
             return jpeg.tobytes()
         else:

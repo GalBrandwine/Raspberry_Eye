@@ -1,5 +1,5 @@
 from flask import Flask, render_template, Response
-from utils.camera import VideoCamera
+from utils.simple_camera import SimpleCamera
 
 app = Flask(__name__)
 
@@ -21,7 +21,7 @@ def video_feed():
     """Entering this url, initiate VideoCamera object, that'll capture images from camera
      and stream them back to web-page.
      """
-    return Response(gen(VideoCamera()),
+    return Response(gen(SimpleCamera()),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
