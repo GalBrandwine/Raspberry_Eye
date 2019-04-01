@@ -18,6 +18,16 @@ import numpy as np
 import time
 import cv2
 
+# Init logger
+camera_logger = logging.getLogger('Smart_camera')
+ch = logging.StreamHandler()
+# create formatter and add it to the handlers.
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+# add the handlers to loggers.
+camera_logger.addHandler(ch)
+
+
 # initialize the list of class labels our network was trained to
 # detect, then generate a set of bounding box colors for each class
 CLASSES = ("background", "aeroplane", "bicycle", "bird",
