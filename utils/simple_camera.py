@@ -58,14 +58,26 @@ class SimpleCamera:
         instead.
         """
         self.logger = logging.getLogger('camera_handler') if logger is None else logger
-        self.video = None
+        self.grabbed = None
         self.frame = None
 
         # Threaded attempt for frame streaming, maybe not necessary.
         # self.video = WebcamVideoStream(src=0).start()
-
+        self.capture = cv2.VideoCapture(0)
         # Get time of initiation.
         self.fps = FPS().start()
+
+    def capture(self):
+        try:
+            self.capture = cv2.VideoCapture(0)
+        except:
+            pass
+
+    def release(self):
+        try:
+            self.capture().release()
+        except:
+            pass
 
     # def __del__(self):
     #     # # self.video.release()
@@ -82,11 +94,12 @@ class SimpleCamera:
     # def release(self):
     #     self.video.release()
 
-    def read(self, frame=None):
+    def read(self):
         """read received raw frame, calculate fps, and perform simple preprocess. """
 
         # ret, image = self.video.read()
-        image = frame
+        (self.grabbed, self.frame) = self.capture.read()
+        image = self.frame
 
         if image is not None:
             """Update FPS, and incode received frame. """

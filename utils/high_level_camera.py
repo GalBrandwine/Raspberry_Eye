@@ -5,6 +5,8 @@ then pass it to SimpleCamera & SmartCamera.
 """
 
 import logging
+import time
+
 import cv2
 from utils.simple_camera import SimpleCamera
 
@@ -24,12 +26,17 @@ camera_logger.addHandler(ch)
 class CameraModule:
 
     def __init__(self, logger=None):
+        """CameraModule is initiated with toggle_flag == True,
+
+        which means it is sets to simple camera.
+        """
+
         self.frame = None
         self.logger = logging.getLogger('camera_module') if logger is None else logger
         self.toggle_flag = True
 
         # CameraModule will capture a frame, then pipe it to smart/simple cameras.
-        self.capture = cv2.VideoCapture(0)
+        # self.capture = cv2.VideoCapture(0)
         # self.capture.release
 
         self.simple_camera = SimpleCamera()
@@ -38,21 +45,41 @@ class CameraModule:
 
     def toggle_camera_modes(self):
         if self.toggle_flag is True:
+            """Then user wants to change from simple to smart cameras. """
+
             self.toggle_flag = False
-            self.logger.info("simple cam: ON")
+            self.logger.info("turning simple cam: OFF")
+            self.logger.info("turning smart cam: ON")
             try:
-                self.smart_camera.release()
+                self.simple_camera.release()
+                time.sleep(1)
+                self.smart_camera.capture()
             except:
                 pass
 
-            # self.simple_camera.capture()
-            # self.frame = self.simple_camera.get_frame()
+        if self.toggle_flag is False:
+            """Then user wants to change from simple to smart cameras. """
+
+            self.toggle_flag = True
+            self.logger.info("turning simple cam: ON")
+            self.logger.info("turning smart cam: OFF")
+            try:
+                self.smart_camera.release()
+                time.sleep(1)
+                self.simple_camera.capture()
+            except:
+                pass
 
     def read(self):
-        (self.grabbed, self.frame) = self.capture.read()
         if self.toggle_flag is True:
             self.logger.info("getting frame from simple cam")
-            return self.simple_camera.read(self.frame)
+            return self.simple_camera.read()
+
+    def release(self):
+        try:
+            self.simple_camera.release()
+        except:
+            pass
 
 #     def show(self):
 #         """For debugging. """
