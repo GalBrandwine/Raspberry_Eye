@@ -380,12 +380,12 @@ class SmartCamera:
 #     cv2.destroyAllWindows()
 
 # stop the video stream
-vs.stop()
+# vs.stop()
+#
+# # clean up the graph and device
+# graph.DeallocateGraph()
+# device.CloseDevice()
 
-# clean up the graph and device
-graph.DeallocateGraph()
-device.CloseDevice()
-
-# display FPS information
-self.logger.info("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
-self.logger.info("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+# # display FPS information
+# self.logger.info("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
+# self.logger.info("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
