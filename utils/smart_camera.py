@@ -15,6 +15,7 @@ from _pytest import logging
 from mvnc import mvncapi as mvnc
 from imutils.video import FPS
 import numpy as np
+import logging
 import time
 import cv2
 
