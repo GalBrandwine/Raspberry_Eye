@@ -42,7 +42,7 @@ class CameraModule:
         # self.capture.release
 
         self.simple_camera = SimpleCamera()
-        self.smart_camera = SmartCameKra()
+        self.smart_camera = SmartCamera("/graphs/mobilenetgraph")
 
     def toggle_camera_modes(self):
         if self.toggle_flag is True:

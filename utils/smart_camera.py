@@ -35,13 +35,14 @@ DISP_MULTIPLIER = DISPLAY_DIMS[0] // PREPROCESS_DIMS[0]
 
 
 class SmartCamera:
-    def __init__(self, logger=None):
+    def __init__(self, graph_path, logger=None):
         """Using OpenCV to capture from device 0.
 
         If you have trouble capturing
         from a Web-cam, comment the line below out and use a video file
         instead.
         """
+        self.graph_path = graph_path
         self.graph = None
         self.graph_in_memory = None
         self.devices = mvnc.EnumerateDevices()
@@ -209,7 +210,7 @@ class SmartCamera:
 
                 # filter out weak detections by ensuring the `confidence`
                 # is greater than the minimum confidence
-                if pred_conf > 0.5: # args["confidence"]:
+                if pred_conf > 0.5:  # args["confidence"]:
                     # self.logger.info prediction to terminal
                     self.logger.info("[INFO] Prediction #{}: class={}, confidence={}, "
                                      "boxpoints={}".format(i, CLASSES[pred_class], pred_conf,
@@ -258,7 +259,6 @@ class SmartCamera:
         # if there's a problem reading a frame, break gracefully
         except AttributeError as err:
             self.logger.error(err)
-
 
 # # construct the argument parser and parse the arguments
 # ap = argparse.ArgumentParser()
