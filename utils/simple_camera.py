@@ -1,5 +1,9 @@
 """A simple webcam,
- get video feed from camera, compute FPS, and return the captured frame suppose to be optimised and threaded using Pyimagesearch's imutils. """
+
+ get video feed from camera, compute FPS,
+ and return the captured frame with inframe_printed header "simple camera".
+ """
+
 from __future__ import print_function
 
 import logging
@@ -45,14 +49,17 @@ ch.setFormatter(formatter)
 camera_logger.addHandler(ch)
 
 
-class SimpleCamera(object):
-    def __init__(self):
-        """Using OpenCV to capture from device 0. If you have trouble capturing
+class SimpleCamera:
+    def __init__(self, logger=None):
+        """Using OpenCV to capture from device 0.
+
+        If you have trouble capturing
         from a Web-cam, comment the line below out and use a video file
         instead.
         """
-        self.logger = logging.getLogger('camera_handler')
-        self.video = cv2.VideoCapture(0)
+        self.logger = logging.getLogger('camera_handler') if logger is None else logger
+        self.video = None
+        self.frame = None
 
         # Threaded attempt for frame streaming, maybe not necessary.
         # self.video = WebcamVideoStream(src=0).start()
@@ -60,13 +67,26 @@ class SimpleCamera(object):
         # Get time of initiation.
         self.fps = FPS().start()
 
-    def __del__(self):
-        # self.video.release()
-        self.video.stop()
+    # def __del__(self):
+    #     # # self.video.release()
+    #     # self.video.stop()
+    #     pass
 
-    def get_frame(self):
-        ret, image = self.video.read()
-        # image = self.video.read()
+    # def capture(self):
+    #     """Capture recording device. """
+    #     try:
+    #         self.video = cv2.VideoCapture(0)
+    #     except:  # TODO: catch a proper exception
+    #         self.logger.error("Could not capture device camera!")
+
+    # def release(self):
+    #     self.video.release()
+
+    def read(self, frame=None):
+        """read received raw frame, calculate fps, and perform simple preprocess. """
+
+        # ret, image = self.video.read()
+        image = frame
 
         if image is not None:
             """Update FPS, and incode received frame. """
@@ -80,10 +100,12 @@ class SimpleCamera(object):
             # display a piece of text to the frame (so we can benchmark
             # fairly against the fast method)
             self.fps.stop()
-            cv2.putText(image, "FPS: {}".format(self.fps.fps()), (10, 30),
+            cv2.putText(image, "FPS: {:.2f}".format(self.fps.fps()), (10, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+            self.frame = image.copy()
 
             ret, jpeg = cv2.imencode('.jpg', image)
             return jpeg.tobytes()
         else:
             self.logger.debug("in 'get_frame', video.read not success")
+

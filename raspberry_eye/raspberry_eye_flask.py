@@ -1,9 +1,21 @@
 # from RPIO import PWM
+import logging
 
 from flask import Flask
 from flask import render_template
 from flask import Response
-from utils.simple_camera import SimpleCamera
+
+from utils.high_level_camera import CameraModule
+
+# Create loggers.
+camera_logger = logging.getLogger('camera_handler')
+ch = logging.StreamHandler()
+# create formatter and add it to the handlers.
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+# add the handlers to loggers.
+camera_logger.addHandler(ch)
+
 
 app = Flask(__name__)
 
@@ -47,7 +59,7 @@ def main():
 def gen(camera):
     """Get frame from stream and preprocess before posting it on line. """
     while True:
-        frame = camera.get_frame()
+        frame = camera.read()
 
         # TODO: add cat_detector
 
@@ -62,7 +74,7 @@ def video_feed():
      """
 
     # TODO: add global flag for determining which camera will be deployed: simple or smart.
-    return Response(gen(SimpleCamera()),
+    return Response(gen(CameraModule(camera_logger)),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
