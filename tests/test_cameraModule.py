@@ -47,4 +47,5 @@ class TestCameraModule:
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
-        self.fail()
+        # teardown
+        camera_module.release()

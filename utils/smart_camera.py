@@ -84,7 +84,7 @@ class SmartCamera:
             self.fps.update()
 
             # ncs_predict
-            self.ncs_predict()
+            self.ncs_predict(image)
 
             # We are using Motion JPEG, but OpenCV defaults to capture raw images,
             # so we must encode it into JPEG in order to correctly display the
@@ -93,7 +93,7 @@ class SmartCamera:
             # display a piece of text to the frame (so we can benchmark
             # fairly against the fast method)
             self.fps.stop()
-            cv2.putText(image, "FPS: {:.2f}".format(self.fps.fps()), (10, 30),
+            cv2.putText(image, "FPS (smart): {:.2f}".format(self.fps.fps()), (10, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
             self.frame = image.copy()
 
@@ -191,16 +191,16 @@ class SmartCamera:
         self.logger.info("[INFO] allocating the graph on the NCS...")
         self.graph = device.AllocateGraph(self.graph_in_memory)
 
-    def ncs_predict(self):
+    def ncs_predict(self, frame=None):
         try:
             # grab the frame from the threaded video stream
             # make a copy of the frame and resize it for display/video purposes
-            frame = vs.read()
+            frame = frame
             image_for_result = frame.copy()
             image_for_result = cv2.resize(image_for_result, DISPLAY_DIMS)
 
             # use the NCS to acquire predictions
-            predictions = predict(frame, graph)
+            predictions = self.predict(frame, self.graph)
 
             # loop over our predictions
             for (i, pred) in enumerate(predictions):
@@ -209,7 +209,7 @@ class SmartCamera:
 
                 # filter out weak detections by ensuring the `confidence`
                 # is greater than the minimum confidence
-                if pred_conf > args["confidence"]:
+                if pred_conf > 0.5: # args["confidence"]:
                     # self.logger.info prediction to terminal
                     self.logger.info("[INFO] Prediction #{}: class={}, confidence={}, "
                                      "boxpoints={}".format(i, CLASSES[pred_class], pred_conf,
@@ -217,24 +217,24 @@ class SmartCamera:
 
                     # check if we should show the prediction data
                     # on the frame
-                    if args["display"] > 0:
-                        # build a label consisting of the predicted class and
-                        # associated probability
-                        label = "{}: {:.2f}%".format(CLASSES[pred_class],
-                                                     pred_conf * 100)
+                    # if args["display"] > 0:
+                    # build a label consisting of the predicted class and
+                    # associated probability
+                    label = "{}: {:.2f}%".format(CLASSES[pred_class],
+                                                 pred_conf * 100)
 
-                        # extract information from the prediction boxpoints
-                        (ptA, ptB) = (pred_boxpts[0], pred_boxpts[1])
-                        ptA = (ptA[0] * DISP_MULTIPLIER, ptA[1] * DISP_MULTIPLIER)
-                        ptB = (ptB[0] * DISP_MULTIPLIER, ptB[1] * DISP_MULTIPLIER)
-                        (startX, startY) = (ptA[0], ptA[1])
-                        y = startY - 15 if startY - 15 > 15 else startY + 15
+                    # extract information from the prediction boxpoints
+                    (ptA, ptB) = (pred_boxpts[0], pred_boxpts[1])
+                    ptA = (ptA[0] * DISP_MULTIPLIER, ptA[1] * DISP_MULTIPLIER)
+                    ptB = (ptB[0] * DISP_MULTIPLIER, ptB[1] * DISP_MULTIPLIER)
+                    (startX, startY) = (ptA[0], ptA[1])
+                    y = startY - 15 if startY - 15 > 15 else startY + 15
 
-                        # display the rectangle and label text
-                        cv2.rectangle(image_for_result, ptA, ptB,
-                                      COLORS[pred_class], 2)
-                        cv2.putText(image_for_result, label, (startX, y),
-                                    cv2.FONT_HERSHEY_SIMPLEX, 1, COLORS[pred_class], 3)
+                    # display the rectangle and label text
+                    cv2.rectangle(image_for_result, ptA, ptB,
+                                  COLORS[pred_class], 2)
+                    cv2.putText(image_for_result, label, (startX, y),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, COLORS[pred_class], 3)
 
             # check if we should display the frame on the screen
             # with prediction data (you can achieve faster FPS if you
@@ -249,7 +249,7 @@ class SmartCamera:
             #         break
 
             # update the FPS counter
-            fps.update()
+            self.fps.update()
 
         # if "ctrl+c" is pressed in the terminal, break from the loop
         except KeyboardInterrupt as err:

@@ -14,6 +14,8 @@ from utils.simple_camera import SimpleCamera
 
 
 # Create loggers.
+from utils.smart_camera import SmartCamera
+
 camera_logger = logging.getLogger('camera_module')
 ch = logging.StreamHandler()
 # create formatter and add it to the handlers.
@@ -40,8 +42,7 @@ class CameraModule:
         # self.capture.release
 
         self.simple_camera = SimpleCamera()
-
-    #       self.smart_camera = SmartCamera()
+        self.smart_camera = SmartCameKra()
 
     def toggle_camera_modes(self):
         if self.toggle_flag is True:
@@ -57,8 +58,8 @@ class CameraModule:
             except:
                 pass
 
-        if self.toggle_flag is False:
-            """Then user wants to change from simple to smart cameras. """
+        elif self.toggle_flag is False:
+            """Then user wants to change from simple to simple cameras. """
 
             self.toggle_flag = True
             self.logger.info("turning simple cam: ON")
@@ -74,6 +75,11 @@ class CameraModule:
         if self.toggle_flag is True:
             self.logger.info("getting frame from simple cam")
             return self.simple_camera.read()
+
+        elif self.toggle_flag is False:
+            self.logger.info("getting frame from smart cam")
+            return self.smart_camera.read()
+
 
     def release(self):
         try:
