@@ -10,13 +10,13 @@
 # python ncs_realtime_objectdetection.py --graph graphs/mobilenetgraph --display 1
 # python ncs_realtime_objectdetection.py --graph graphs/mobilenetgraph --confidence 0.5 --display 1
 
-# import the necessary packages
-import os
-
-from _pytest import logging
 try:
     from mvnc import mvncapi as mvnc
+
 except ImportError as err:
+    """For none mvnc environments. """
+
+
     class mvnc:
         """A mock nvmc."""
 
@@ -37,10 +37,13 @@ except ImportError as err:
                     return graph
 
             return device()
+
+
+import os
+from _pytest import logging
 from imutils.video import FPS
 import numpy as np
 import logging
-import time
 import cv2
 
 # Init logger
