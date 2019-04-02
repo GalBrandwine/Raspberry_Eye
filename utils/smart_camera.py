@@ -14,7 +14,29 @@
 import os
 
 from _pytest import logging
-# from mvnc import mvncapi as mvnc
+try:
+    from mvnc import mvncapi as mvnc
+except ImportError as err:
+    class mvnc:
+        """A mock nvmc."""
+
+        devices = [0, 1]
+
+        @classmethod
+        def EnumerateDevices(cls):
+            return cls.devices
+
+        @classmethod
+        def Device(cls, param):
+            class device:
+                def OpenDevice(self):
+                    return 1
+
+                def AllocateGraph(self, graph_in_memory):
+                    graph = 1
+                    return graph
+
+            return device()
 from imutils.video import FPS
 import numpy as np
 import logging
@@ -46,26 +68,7 @@ DISPLAY_DIMS = (900, 900)
 DISP_MULTIPLIER = DISPLAY_DIMS[0] // PREPROCESS_DIMS[0]
 
 
-class mvnc:
-    """A mock nvmc."""
 
-    devices = [0,1]
-
-    @classmethod
-    def EnumerateDevices(cls):
-        return cls.devices
-
-    @classmethod
-    def Device(cls, param):
-        class device:
-            def OpenDevice(self):
-                return 1
-
-            def AllocateGraph(self, graph_in_memory):
-                graph = 1
-                return graph
-
-        return device()
 
 
 class SmartCamera:
