@@ -7,15 +7,10 @@ then pass it to SimpleCamera & SmartCamera.
 import logging
 import time
 
-import cv2
 from utils.simple_camera import SimpleCamera
-
-# from utils.smart_camera import SmartCamera
-
-
-# Create loggers.
 from utils.smart_camera import SmartCamera
 
+# Create loggers.
 camera_logger = logging.getLogger('camera_module')
 ch = logging.StreamHandler()
 # create formatter and add it to the handlers.
@@ -42,7 +37,8 @@ class CameraModule:
         # self.capture.release
 
         self.simple_camera = SimpleCamera()
-        self.smart_camera = SmartCamera("/graphs/mobilenetgraph")
+        self.smart_camera = SmartCamera("/media/gal/DATA/Documents/projects/Raspberry_Eye/graphs/mobilenetgraph")
+        self.init()
 
     def toggle_camera_modes(self):
         if self.toggle_flag is True:
@@ -80,12 +76,14 @@ class CameraModule:
             self.logger.info("getting frame from smart cam")
             return self.smart_camera.read()
 
-
     def release(self):
         try:
             self.simple_camera.release()
         except:
             pass
+
+    def init(self):
+        self.simple_camera.capture()
 
 #     def show(self):
 #         """For debugging. """

@@ -11,8 +11,10 @@
 # python ncs_realtime_objectdetection.py --graph graphs/mobilenetgraph --confidence 0.5 --display 1
 
 # import the necessary packages
+import os
+
 from _pytest import logging
-from mvnc import mvncapi as mvnc
+# from mvnc import mvncapi as mvnc
 from imutils.video import FPS
 import numpy as np
 import logging
@@ -27,7 +29,6 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 ch.setFormatter(formatter)
 # add the handlers to loggers.
 camera_logger.addHandler(ch)
-
 
 # initialize the list of class labels our network was trained to
 # detect, then generate a set of bounding box colors for each class
@@ -45,6 +46,28 @@ DISPLAY_DIMS = (900, 900)
 DISP_MULTIPLIER = DISPLAY_DIMS[0] // PREPROCESS_DIMS[0]
 
 
+class mvnc:
+    """A mock nvmc."""
+
+    devices = [0,1]
+
+    @classmethod
+    def EnumerateDevices(cls):
+        return cls.devices
+
+    @classmethod
+    def Device(cls, param):
+        class device:
+            def OpenDevice(self):
+                return 1
+
+            def AllocateGraph(self, graph_in_memory):
+                graph = 1
+                return graph
+
+        return device()
+
+
 class SmartCamera:
     def __init__(self, graph_path, logger=None):
         """Using OpenCV to capture from device 0.
@@ -56,7 +79,7 @@ class SmartCamera:
         self.graph_path = graph_path
         self.graph = None
         self.graph_in_memory = None
-        self.devices = mvnc.EnumerateDevices()
+        # self.devices = mvnc.EnumerateDevices()
         self.predictions = []
         self.logger = logging.getLogger('camera_handler') if logger is None else logger
         self.grabbed = None
@@ -64,20 +87,20 @@ class SmartCamera:
 
         # Threaded attempt for frame streaming, maybe not necessary.
         # self.video = WebcamVideoStream(src=0).start()
-        self.capture = cv2.VideoCapture(0)
+        self.cap = None #cv2.VideoCapture(0)
         # Get time of initiation.
         self.fps = FPS().start()
-        self.ncs_init()
+        self.ncs_init(self.graph_path)
 
     def capture(self):
         try:
-            self.capture = cv2.VideoCapture(0)
+            self.cap = cv2.VideoCapture(0)
         except AttributeError as err:
             self.logger.error(err)
 
     def release(self):
         try:
-            self.capture().release()
+            self.cap().release()
             # clean up the graph and device
             self.graph.DeallocateGraph()
             self.device.CloseDevice()
@@ -88,7 +111,7 @@ class SmartCamera:
     def read(self):
         """read received raw frame, calculate fps, and perform smart preprocess. """
 
-        (self.grabbed, self.frame) = self.capture.read()
+        (self.grabbed, self.frame) = self.cap.read()
         image = self.frame
 
         if image is not None:
@@ -196,6 +219,7 @@ class SmartCamera:
 
         # open the CNN graph file
         self.logger.info("[INFO] loading the graph file into RPi memory...")
+        abs_path = os.path.abspath(graph_path)
         with open(graph_path, mode="rb") as f:
             self.graph_in_memory = f.read()
 

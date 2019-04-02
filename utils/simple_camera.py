@@ -1,7 +1,7 @@
 """A simple webcam,
 
  get video feed from camera, compute FPS,
- and return the captured frame with inframe_printed header "simple camera".
+ and return the capd frame with inframe_printed header "simple camera".
  """
 
 from __future__ import print_function
@@ -51,7 +51,7 @@ camera_logger.addHandler(ch)
 
 class SimpleCamera:
     def __init__(self, logger=None):
-        """Using OpenCV to capture from device 0.
+        """Using OpenCV to cap from device 0.
 
         If you have trouble capturing
         from a Web-cam, comment the line below out and use a video file
@@ -63,19 +63,19 @@ class SimpleCamera:
 
         # Threaded attempt for frame streaming, maybe not necessary.
         # self.video = WebcamVideoStream(src=0).start()
-        self.capture = cv2.VideoCapture(0)
+        self.cap = None #cv2.Videocap(0)
         # Get time of initiation.
         self.fps = FPS().start()
 
     def capture(self):
         try:
-            self.capture = cv2.VideoCapture(0)
+            self.cap = cv2.VideoCapture(0)
         except:
             pass
 
     def release(self):
         try:
-            self.capture().release()
+            self.cap().release()
         except:
             pass
 
@@ -84,12 +84,12 @@ class SimpleCamera:
     #     # self.video.stop()
     #     pass
 
-    # def capture(self):
-    #     """Capture recording device. """
+    # def cap(self):
+    #     """cap recording device. """
     #     try:
-    #         self.video = cv2.VideoCapture(0)
+    #         self.video = cv2.Videocap(0)
     #     except:  # TODO: catch a proper exception
-    #         self.logger.error("Could not capture device camera!")
+    #         self.logger.error("Could not cap device camera!")
 
     # def release(self):
     #     self.video.release()
@@ -98,7 +98,7 @@ class SimpleCamera:
         """read received raw frame, calculate fps, and perform simple preprocess. """
 
         # ret, image = self.video.read()
-        (self.grabbed, self.frame) = self.capture.read()
+        (self.grabbed, self.frame) = self.cap.read()
         image = self.frame
 
         if image is not None:
@@ -106,14 +106,14 @@ class SimpleCamera:
             self.fps.update()
             # TODO: add self.fps.fps() to image, if flagged raised.
 
-            # We are using Motion JPEG, but OpenCV defaults to capture raw images,
+            # We are using Motion JPEG, but OpenCV defaults to cap raw images,
             # so we must encode it into JPEG in order to correctly display the
             # video stream.
 
             # display a piece of text to the frame (so we can benchmark
             # fairly against the fast method)
             self.fps.stop()
-            cv2.putText(image, "FPS: {:.2f}".format(self.fps.fps()), (10, 30),
+            cv2.putText(image, "FPS (simple): {:.2f}".format(self.fps.fps()), (10, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
             self.frame = image.copy()
 
