@@ -70,6 +70,7 @@ DISPLAY_DIMS = (900, 900)
 DISP_MULTIPLIER = DISPLAY_DIMS[0] // PREPROCESS_DIMS[0]
 
 
+# noinspection PyMethodMayBeStatic
 class SmartCamera:
     def __init__(self, graph_path, logger=None):
         """Using OpenCV to capture from device 0.
@@ -87,12 +88,11 @@ class SmartCamera:
         self.grabbed = None
         self.frame = None
 
-        # Threaded attempt for frame streaming, maybe not necessary.
-        # self.video = WebcamVideoStream(src=0).start()
-        self.cap = None  # cv2.VideoCapture(0)
+        self.cap = None
+
         # Get time of initiation.
         self.fps = FPS().start()
-        self.ncs_init(self.graph_path)
+        self.__ncs_init(self.graph_path)
 
     def capture(self):
         try:
@@ -120,27 +120,27 @@ class SmartCamera:
             """Update FPS, and incode received frame. """
             self.fps.update()
 
-            # ncs_predict
-            self.ncs_predict(image)
+            # Start the NCS processing pipeline.
+            self.__ncs_predict(image)
 
             # We are using Motion JPEG, but OpenCV defaults to capture raw images,
             # so we must encode it into JPEG in order to correctly display the
             # video stream.
 
-            # display a piece of text to the frame (so we can benchmark
-            # fairly against the fast method)
+            # Display a piece of text to the frame (so we can benchmark)
             self.fps.stop()
             cv2.putText(image, "FPS (smart): {:.2f}".format(self.fps.fps()), (10, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-            self.frame = image.copy()
 
+            self.frame = image.copy()
             ret, jpeg = cv2.imencode('.jpg', image)
             return jpeg.tobytes()
         else:
             self.logger.debug("in 'get_frame', video.read not success")
+            return None
 
-    # ------------- Preprocessing functions -------------
-    def preprocess_image(self, input_image):
+    # ------------- Preprocessing functions (private) -------------
+    def __preprocess_image(self, input_image):
         # preprocess the image
         preprocessed = cv2.resize(input_image, PREPROCESS_DIMS)
         preprocessed = preprocessed - 127.5
@@ -150,9 +150,9 @@ class SmartCamera:
         # return the image to the calling function
         return preprocessed
 
-    def predict(self, image, graph):
+    def __predict(self, image, graph):
         # preprocess the image
-        image = self.preprocess_image(image)
+        image = self.__preprocess_image(image)
 
         # send the image to the NCS and run a forward pass to grab the
         # network predictions
@@ -202,7 +202,7 @@ class SmartCamera:
         # return the list of predictions to the calling function
         return self.predictions
 
-    def ncs_init(self, graph_path=None, confidence=None, display=None):
+    def __ncs_init(self, graph_path=None, confidence=None, display=None):
         # grab a list of all NCS devices plugged in to USB
         self.logger.info("[INFO] finding NCS devices...")
         self.devices = mvnc.EnumerateDevices()
@@ -229,7 +229,7 @@ class SmartCamera:
         self.logger.info("[INFO] allocating the graph on the NCS...")
         self.graph = device.AllocateGraph(self.graph_in_memory)
 
-    def ncs_predict(self, frame=None):
+    def __ncs_predict(self, frame=None):
         try:
             # grab the frame from the threaded video stream
             # make a copy of the frame and resize it for display/video purposes
@@ -238,7 +238,7 @@ class SmartCamera:
             image_for_result = cv2.resize(image_for_result, DISPLAY_DIMS)
 
             # use the NCS to acquire predictions
-            predictions = self.predict(frame, self.graph)
+            predictions = self.__predict(frame, self.graph)
 
             # loop over our predictions
             for (i, pred) in enumerate(predictions):
@@ -247,15 +247,12 @@ class SmartCamera:
 
                 # filter out weak detections by ensuring the `confidence`
                 # is greater than the minimum confidence
-                if pred_conf > 0.5:  # args["confidence"]:
+                if pred_conf > 0.5:
                     # self.logger.info prediction to terminal
-                    self.logger.info("[INFO] Prediction #{}: class={}, confidence={}, "
+                    self.logger.info("[INFO] prediction #{}: class={}, confidence={}, "
                                      "boxpoints={}".format(i, CLASSES[pred_class], pred_conf,
                                                            pred_boxpts))
 
-                    # check if we should show the prediction data
-                    # on the frame
-                    # if args["display"] > 0:
                     # build a label consisting of the predicted class and
                     # associated probability
                     label = "{}: {:.2f}%".format(CLASSES[pred_class],
@@ -274,155 +271,9 @@ class SmartCamera:
                     cv2.putText(image_for_result, label, (startX, y),
                                 cv2.FONT_HERSHEY_SIMPLEX, 1, COLORS[pred_class], 3)
 
-            # check if we should display the frame on the screen
-            # with prediction data (you can achieve faster FPS if you
-            # do not output to the screen)
-            # if args["display"] > 0:
-            #     # display the frame to the screen
-            #     cv2.imshow("Output", image_for_result)
-            #     key = cv2.waitKey(1) & 0xFF
-            #
-            #     # if the `q` key was pressed, break from the loop
-            #     if key == ord("q"):
-            #         break
-
             # update the FPS counter
             self.fps.update()
-
-        # if "ctrl+c" is pressed in the terminal, break from the loop
-        except KeyboardInterrupt as err:
-            self.logger.error(err)
 
         # if there's a problem reading a frame, break gracefully
         except AttributeError as err:
             self.logger.error(err)
-
-# # construct the argument parser and parse the arguments
-# ap = argparse.ArgumentParser()
-# ap.add_argument("-g", "--graph", required=True,
-#                 help="path to input graph file")
-# ap.add_argument("-c", "--confidence", default=.5,
-#                 help="confidence threshold")
-# ap.add_argument("-d", "--display", type=int, default=0,
-#                 help="switch to display image on screen")
-# args = vars(ap.parse_args())
-
-# # grab a list of all NCS devices plugged in to USB
-# self.logger.info("[INFO] finding NCS devices...")
-# devices = mvnc.EnumerateDevices()
-# 
-# # if no devices found, exit the script
-# if len(devices) == 0:
-#     self.logger.info("[INFO] No devices found. Please plug in a NCS")
-#     quit()
-# 
-# # use the first device since this is a simple test script
-# # (you'll want to modify this is using multiple NCS devices)
-# self.logger.info("[INFO] found {} devices. device0 will be used. "
-#       "opening device0...".format(len(devices)))
-# device = mvnc.Device(devices[0])
-# device.OpenDevice()
-
-# open the CNN graph file
-# self.logger.info("[INFO] loading the graph file into RPi memory...")
-# with open(args["graph"], mode="rb") as f:
-#     graph_in_memory = f.read()
-#
-# # load the graph into the NCS
-# self.logger.info("[INFO] allocating the graph on the NCS...")
-# graph = device.AllocateGraph(graph_in_memory)
-
-# open a pointer to the video stream thread and allow the buffer to
-# start to fill, then start the FPS counter
-# self.logger.info("[INFO] starting the video stream and FPS counter...")
-# # vs = VideoStream(usePiCamera=False).start()
-# vs = WebcamVideoStream(src=0).start()
-# time.sleep(1)
-# fps = FPS().start()
-#
-# # loop over frames from the video file stream
-# while True:
-#     try:
-#         # grab the frame from the threaded video stream
-#         # make a copy of the frame and resize it for display/video purposes
-#         frame = vs.read()
-#         image_for_result = frame.copy()
-#         image_for_result = cv2.resize(image_for_result, DISPLAY_DIMS)
-#
-#         # use the NCS to acquire predictions
-#         predictions = predict(frame, graph)
-#
-#         # loop over our predictions
-#         for (i, pred) in enumerate(predictions):
-#             # extract prediction data for readability
-#             (pred_class, pred_conf, pred_boxpts) = pred
-#
-#             # filter out weak detections by ensuring the `confidence`
-#             # is greater than the minimum confidence
-#             if pred_conf > args["confidence"]:
-#                 # self.logger.info prediction to terminal
-#                 self.logger.info("[INFO] Prediction #{}: class={}, confidence={}, "
-#                                  "boxpoints={}".format(i, CLASSES[pred_class], pred_conf,
-#                                                        pred_boxpts))
-#
-#                 # check if we should show the prediction data
-#                 # on the frame
-#                 if args["display"] > 0:
-#                     # build a label consisting of the predicted class and
-#                     # associated probability
-#                     label = "{}: {:.2f}%".format(CLASSES[pred_class],
-#                                                  pred_conf * 100)
-#
-#                     # extract information from the prediction boxpoints
-#                     (ptA, ptB) = (pred_boxpts[0], pred_boxpts[1])
-#                     ptA = (ptA[0] * DISP_MULTIPLIER, ptA[1] * DISP_MULTIPLIER)
-#                     ptB = (ptB[0] * DISP_MULTIPLIER, ptB[1] * DISP_MULTIPLIER)
-#                     (startX, startY) = (ptA[0], ptA[1])
-#                     y = startY - 15 if startY - 15 > 15 else startY + 15
-#
-#                     # display the rectangle and label text
-#                     cv2.rectangle(image_for_result, ptA, ptB,
-#                                   COLORS[pred_class], 2)
-#                     cv2.putText(image_for_result, label, (startX, y),
-#                                 cv2.FONT_HERSHEY_SIMPLEX, 1, COLORS[pred_class], 3)
-#
-#         # check if we should display the frame on the screen
-#         # with prediction data (you can achieve faster FPS if you
-#         # do not output to the screen)
-#         if args["display"] > 0:
-#             # display the frame to the screen
-#             cv2.imshow("Output", image_for_result)
-#             key = cv2.waitKey(1) & 0xFF
-#
-#             # if the `q` key was pressed, break from the loop
-#             if key == ord("q"):
-#                 break
-#
-#         # update the FPS counter
-#         fps.update()
-#
-#     # if "ctrl+c" is pressed in the terminal, break from the loop
-#     except KeyboardInterrupt:
-#         break
-#
-#     # if there's a problem reading a frame, break gracefully
-#     except AttributeError:
-#         break
-#
-# # stop the FPS counter timer
-# fps.stop()
-#
-# # destroy all windows if we are displaying them
-# if args["display"] > 0:
-#     cv2.destroyAllWindows()
-
-# stop the video stream
-# vs.stop()
-#
-# # clean up the graph and device
-# graph.DeallocateGraph()
-# device.CloseDevice()
-
-# # display FPS information
-# self.logger.info("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
-# self.logger.info("[INFO] approx. FPS: {:.2f}".format(fps.fps()))

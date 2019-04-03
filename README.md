@@ -41,8 +41,6 @@ To build Smart IP camera that will recognize my pets, that is gimbalised and con
 
             https://www.pyimagesearch.com/2018/02/12/getting-started-with-the-intel-movidius-neural-compute-stick/
 
-
-
       2.    A tutorial for setting the development machine for NCS,
             And converting trained caffe model to 'graph', then running it on the predictions machine.
 
