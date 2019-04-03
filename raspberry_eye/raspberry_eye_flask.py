@@ -16,8 +16,10 @@ ch.setFormatter(formatter)
 # add the handlers to loggers.
 camera_logger.addHandler(ch)
 
-# some globals:
+# Globals:
 smart_toggle_global = False
+tom_toggle = False
+mufasa_toggle = False
 
 app = Flask(__name__)
 
@@ -61,15 +63,39 @@ def main():
 def gen(camera):
     """Get frame from stream and preprocess before posting it on line. """
     global smart_toggle_global
+    global tom_toggle
+    global mufasa_toggle
+
     temp_smart_camera_toggle = smart_toggle_global
+    temp_tom_toggle = tom_toggle
+    temp_mufasa_toggle = mufasa_toggle
 
     while True:
 
+        # Update tom, mufasa, and smart toggles:
+        # params: smart_on, smart_off (simple), cat, dog
         if temp_smart_camera_toggle is not smart_toggle_global:
-            # smart toggle has bees pressed
+            # Smart toggle has changed.
             temp_smart_camera_toggle = smart_toggle_global
-            camera.toggle_camera_modes()
+            if temp_smart_camera_toggle is True:
+                camera.toggle_camera_modes('smart_on')
+            else:
+                camera.toggle_camera_modes('smart_off')
 
+        # For tom, mufasa and other future objects, toggle them on ONLY if 'smart' is ON.
+        if temp_tom_toggle is not tom_toggle:
+            temp_tom_toggle = tom_toggle
+            if temp_smart_camera_toggle is True and temp_tom_toggle is True:
+                camera.toggle_camera_modes('cat')
+            elif temp_smart_camera_toggle is True and temp_tom_toggle is False and temp_mufasa_toggle is False:
+                camera.toggle_camera_modes('smart_on')
+
+        if temp_mufasa_toggle is not mufasa_toggle:
+            temp_mufasa_toggle = mufasa_toggle
+            if temp_smart_camera_toggle is True and temp_mufasa_toggle is True:
+                camera.toggle_camera_modes('dog')
+            elif temp_smart_camera_toggle is True and temp_tom_toggle is False and temp_mufasa_toggle is False:
+                camera.toggle_camera_modes('smart_on')
 
         frame = camera.read()
 
@@ -127,16 +153,41 @@ def move(direction):
 
 
 # The function below is executed when someone requests a URL with a smart_toggle button pressed
-@app.route("/smart_toggle/<smart_toggle>")
-def smart_toggle(smart_toggle):
-    # Toggle smart_toggle_global
+@app.route("/smart_toggle/<smart_toggle_input>")
+def smart_toggle(smart_toggle_input):
+    global mufasa_toggle
     global smart_toggle_global
-    if smart_toggle_global is False:
-        smart_toggle_global = True
-    else:
-        smart_toggle_global = False
+    global tom_toggle
 
-    print("smart_toggle is now: {}".format(smart_toggle_global))
+    message = "In smart_toggle. {}".format(smart_toggle_input)
+    # Toggle smart_toggle_global
+    if smart_toggle_input == "smart_on":
+        smart_toggle_global = True
+        message = message + " is now {}".format(smart_toggle_global)
+
+    if smart_toggle_input == "smart_off":
+        smart_toggle_global = False
+        tom_toggle = False
+        mufasa_toggle = False
+        message = message + " is now {}".format(smart_toggle_global)
+
+    if smart_toggle_input == "tom_smart_on":
+        tom_toggle = True
+        mufasa_toggle = False
+        message = message + " is now {}".format(tom_toggle)
+    if smart_toggle_input == "tom_smart_off":
+        tom_toggle = False
+        message = message + " is now {}".format(tom_toggle)
+
+    if smart_toggle_input == "mufasa_smart_on":
+        mufasa_toggle = True
+        tom_toggle = False
+        message = message + " is now {}".format(mufasa_toggle)
+    if smart_toggle_input == "mufasa_smart_off":
+        mufasa_toggle = False
+        message = message + " is now {}".format(mufasa_toggle)
+
+    print(message)
     return "Pressed"
 
 

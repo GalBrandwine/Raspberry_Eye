@@ -83,8 +83,9 @@ class SmartCamera:
         self.graph = None
         self.graph_in_memory = None
         # self.devices = mvnc.EnumerateDevices()
+        self.object_to_track = None
         self.predictions = []
-        self.logger = logging.getLogger('camera_handler') if logger is None else logger
+        self.logger = logging.getLogger('Smart_camera') if logger is None else logger
         self.grabbed = None
         self.frame = None
 
@@ -94,15 +95,16 @@ class SmartCamera:
         self.fps = FPS().start()
         self.__ncs_init(self.graph_path)
 
-    def capture(self):
+    def capture(self, object_to_track=None):
         try:
             self.cap = cv2.VideoCapture(0)
+            self.object_to_track = object_to_track
         except AttributeError as err:
             self.logger.error(err)
 
     def release(self):
         try:
-            self.cap().release()
+            self.cap.release()
             # clean up the graph and device
             self.graph.DeallocateGraph()
             self.device.CloseDevice()
@@ -121,8 +123,11 @@ class SmartCamera:
             self.fps.update()
 
             # Start the NCS processing pipeline.
-            self.__ncs_predict(image)
+           # self.__ncs_predict(image)
 
+            # todo: If self.object_to_track is not NONE, call gimbal.auto_tracker(self.object_to_track).
+            # todo: DEVELOP gimbal module.
+            self.logger.info("smart camera tracking: {}".format(self.object_to_track))
             # We are using Motion JPEG, but OpenCV defaults to capture raw images,
             # so we must encode it into JPEG in order to correctly display the
             # video stream.
@@ -156,8 +161,11 @@ class SmartCamera:
 
         # send the image to the NCS and run a forward pass to grab the
         # network predictions
-        graph.LoadTensor(image, None)
-        (output, _) = graph.GetResult()
+        try:
+            graph.LoadTensor(image, None)
+            (output, _) = graph.GetResult()
+        except TypeError as err:
+            pass
 
         # grab the number of valid object predictions from the output,
         # then initialize the list of predictions

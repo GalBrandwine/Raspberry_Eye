@@ -7,14 +7,100 @@
             {
                 width: 50%;
             }
+
+            /* The switch - the box around the slider */
+            .switch {
+              position: relative;
+              display: inline-block;
+              width: 60px;
+              height: 34px;
+            }
+
+            /* Hide default HTML checkbox */
+            .switch input {
+              opacity: 0;
+              width: 0;
+              height: 0;
+            }
+
+            /* The slider */
+            .slider {
+              position: absolute;
+              cursor: pointer;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background-color: #ccc;
+              -webkit-transition: .4s;
+              transition: .4s;
+            }
+
+            .slider:before {
+              position: absolute;
+              content: "";
+              height: 26px;
+              width: 26px;
+              left: 4px;
+              bottom: 4px;
+              background-color: white;
+              -webkit-transition: .4s;
+              transition: .4s;
+            }
+
+            input:checked + .slider {
+              background-color: #2196F3;
+            }
+
+            input:focus + .slider {
+              box-shadow: 0 0 1px #2196F3;
+            }
+
+            input:checked + .slider:before {
+              -webkit-transform: translateX(26px);
+              -ms-transform: translateX(26px);
+              transform: translateX(26px);
+            }
+
+
         </style>
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
         <script language="javascript" type="text/javascript">
+
+
             function Button_onclick(direction) {
                 $.ajax({ url: '/move/' + direction });
             }
-            function Smart_toggle(smart_toggle) {
-                $.ajax({ url: '/smart_toggle/' + smart_toggle });
+
+            function Smart_toggle(checkbox) {
+                if(checkbox.checked){
+                    $.ajax({ url: '/smart_toggle/' + 'smart_on' });
+                    document.getElementById("btnSmartTrackingTom").disabled = false;
+                    document.getElementById("btnSmartTrackingMufasa").disabled = false;
+                }else{
+                    $.ajax({ url: '/smart_toggle/' + 'smart_off' });
+                    document.getElementById("btnSmartTrackingTom").checked = false;
+                    document.getElementById("btnSmartTrackingMufasa").checked = false;
+                    document.getElementById("btnSmartTrackingTom").disabled = true;
+                    document.getElementById("btnSmartTrackingMufasa").disabled = true;
+                }
+            }
+            function Tom_Tracking_toggle(Tom_checkbox) {
+                if(Tom_checkbox.checked){
+                    document.getElementById("btnSmartTrackingMufasa").checked = false;
+                    $.ajax({ url: '/smart_toggle/' + 'tom_smart_on' });
+
+                }else{
+                    $.ajax({ url: '/smart_toggle/' + 'tom_smart_off' });
+                }
+            }
+            function Mufasa_Tracking_toggle(Mufasa_checkbox) {
+                if(Mufasa_checkbox.checked){
+                    document.getElementById("btnSmartTrackingTom").checked = false;
+                    $.ajax({ url: '/smart_toggle/' + 'mufasa_smart_on' });
+                }else{
+                    $.ajax({ url: '/smart_toggle/' + 'mufasa_smart_off' });
+                }
             }
         </script>
     </head>
@@ -22,8 +108,36 @@
 
         <table align="center" class="style1">
             <tr>
+                 <td colspan="0" style="text-align: center">
+                     <p>Smart Track</p>
+                     </td>
+                 <td colspan="2" style="text-align: center">
+                    <label class="switch">
+                      <input type="checkbox" id="btnSmartToggle" onchange="Smart_toggle(this)">
+                      <span class="slider"></span>
+
+                    </label>
+                 </td>
+             </tr>
+             <tr>
+                 <td colspan="0" style="text-align: center">
+                     <p>Track Tom</p>
+                     </td>
+                 <td colspan="2" style="text-align: center">
+                    <label class="switch">
+                      <input type="checkbox" input id="btnSmartTrackingTom" disabled onclick="Tom_Tracking_toggle(this)" >
+                      <span class="slider"></span>
+                    </label>
+                 </td>
+             </tr>
+                 <td colspan="0" style="text-align: center">
+                     <p>Track Mufasa</p>
+                     </td>
                 <td colspan="2" style="text-align: center">
-                     <input id="btnSmartToggle" type="button" value="SmartCamera toggle" onclick="Smart_toggle('SmartCamera_toggle')" />
+                    <label class="switch">
+                      <input type="checkbox" input id="btnSmartTrackingMufasa" disabled onclick="Mufasa_Tracking_toggle(this)" >
+                      <span class="slider"></span>
+                    </label>
                 </td>
             </tr>
             <tr>
