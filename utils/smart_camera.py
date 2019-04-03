@@ -38,7 +38,6 @@ except ImportError as err:
 
             return device()
 
-
 import os
 from _pytest import logging
 from imutils.video import FPS
@@ -71,9 +70,6 @@ DISPLAY_DIMS = (900, 900)
 DISP_MULTIPLIER = DISPLAY_DIMS[0] // PREPROCESS_DIMS[0]
 
 
-
-
-
 class SmartCamera:
     def __init__(self, graph_path, logger=None):
         """Using OpenCV to capture from device 0.
@@ -93,7 +89,7 @@ class SmartCamera:
 
         # Threaded attempt for frame streaming, maybe not necessary.
         # self.video = WebcamVideoStream(src=0).start()
-        self.cap = None #cv2.VideoCapture(0)
+        self.cap = None  # cv2.VideoCapture(0)
         # Get time of initiation.
         self.fps = FPS().start()
         self.ncs_init(self.graph_path)
@@ -115,7 +111,7 @@ class SmartCamera:
             self.logger.error(err)
 
     def read(self):
-        """read received raw frame, calculate fps, and perform smart preprocess. """
+        """Read received raw frame, calculate fps, and perform smart preprocess. """
 
         (self.grabbed, self.frame) = self.cap.read()
         image = self.frame

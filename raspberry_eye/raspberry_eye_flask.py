@@ -16,6 +16,8 @@ ch.setFormatter(formatter)
 # add the handlers to loggers.
 camera_logger.addHandler(ch)
 
+# some globals:
+smart_toggle_global = False
 
 app = Flask(__name__)
 
@@ -58,10 +60,18 @@ def main():
 
 def gen(camera):
     """Get frame from stream and preprocess before posting it on line. """
-    while True:
-        frame = camera.read()
+    global smart_toggle_global
+    temp_smart_camera_toggle = smart_toggle_global
 
-        # TODO: add cat_detector
+    while True:
+
+        if temp_smart_camera_toggle is not smart_toggle_global:
+            # smart toggle has bees pressed
+            temp_smart_camera_toggle = smart_toggle_global
+            camera.toggle_camera_modes()
+
+
+        frame = camera.read()
 
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
@@ -79,10 +89,10 @@ def video_feed():
 
 
 # The function below is executed when someone requests a URL with a move direction
-@app.route("/<direction>")
+@app.route("/move/<direction>")
 def move(direction):
     # Choose the direction of the request
-    print(direction)
+    print("In direction: {}".format(direction))
     if direction == 'left':
         # Increment the angle by 10 degrees
         na = pins[23]['angle'] + 10
@@ -113,7 +123,21 @@ def move(direction):
             pins[22]['angle'] = na
         return str(na) + ' ' + str(angleMap(na))
 
-    return "Prassed"
+    return "Pressed"
+
+
+# The function below is executed when someone requests a URL with a smart_toggle button pressed
+@app.route("/smart_toggle/<smart_toggle>")
+def smart_toggle(smart_toggle):
+    # Toggle smart_toggle_global
+    global smart_toggle_global
+    if smart_toggle_global is False:
+        smart_toggle_global = True
+    else:
+        smart_toggle_global = False
+
+    print("smart_toggle is now: {}".format(smart_toggle_global))
+    return "Pressed"
 
 
 # Function to manually set a motor to a specific pluse width
@@ -129,7 +153,7 @@ def manual(motor, pulsewidth):
 
 
 # Clean everything up when the app exits
-#atexit.register(cleanup)
+# atexit.register(cleanup)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8000, debug=True)

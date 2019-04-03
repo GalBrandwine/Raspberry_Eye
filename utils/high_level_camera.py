@@ -11,6 +11,7 @@ from utils.simple_camera import SimpleCamera
 from utils.smart_camera import SmartCamera
 
 # Create loggers.
+logging.basicConfig(level=logging.INFO)
 camera_logger = logging.getLogger('camera_module')
 ch = logging.StreamHandler()
 # create formatter and add it to the handlers.
@@ -69,11 +70,11 @@ class CameraModule:
 
     def read(self):
         if self.toggle_flag is True:
-            self.logger.info("getting frame from simple cam")
+            # self.logger.info("getting frame from simple cam")
             return self.simple_camera.read()
 
         elif self.toggle_flag is False:
-            self.logger.info("getting frame from smart cam")
+            # self.logger.info("getting frame from smart cam")
             return self.smart_camera.read()
 
     def release(self):

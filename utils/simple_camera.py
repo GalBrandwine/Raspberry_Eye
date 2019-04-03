@@ -40,7 +40,8 @@ import cv2
 # vs.stop()
 
 # Create loggers.
-camera_logger = logging.getLogger('camera_handler')
+logging.basicConfig(level=logging.INFO)
+camera_logger = logging.getLogger('simple_camera')
 ch = logging.StreamHandler()
 # create formatter and add it to the handlers.
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -57,13 +58,11 @@ class SimpleCamera:
         from a Web-cam, comment the line below out and use a video file
         instead.
         """
-        self.logger = logging.getLogger('camera_handler') if logger is None else logger
+        self.logger = logging.getLogger('simple_camera') if logger is None else logger
         self.grabbed = None
         self.frame = None
+        self.cap = None
 
-        # Threaded attempt for frame streaming, maybe not necessary.
-        # self.video = WebcamVideoStream(src=0).start()
-        self.cap = None #cv2.Videocap(0)
         # Get time of initiation.
         self.fps = FPS().start()
 
@@ -75,7 +74,7 @@ class SimpleCamera:
 
     def release(self):
         try:
-            self.cap().release()
+            self.cap.release()
         except:
             pass
 

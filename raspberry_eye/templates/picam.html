@@ -11,7 +11,10 @@
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
         <script language="javascript" type="text/javascript">
             function Button_onclick(direction) {
-                $.ajax({ url: '/' + direction });
+                $.ajax({ url: '/move/' + direction });
+            }
+            function Smart_toggle(smart_toggle) {
+                $.ajax({ url: '/smart_toggle/' + smart_toggle });
             }
         </script>
     </head>
@@ -20,7 +23,20 @@
         <table align="center" class="style1">
             <tr>
                 <td colspan="2" style="text-align: center">
+                     <input id="btnSmartToggle" type="button" value="SmartCamera toggle" onclick="Smart_toggle('SmartCamera_toggle')" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align: center">
 					<img id="bg" src="{{ url_for('video_feed') }}">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="0" style="text-align: center">
+                    <input id="btnRotateLeft" type="button" value="Rotate Left" onclick="Button_onclick('Rotate_Left')" />
+                </td>
+                <td style="text-align: center">
+                    <input id="btnRotateRight" type="button" value="Rotate Right" onclick="Button_onclick('Rotate_Right')" />
                 </td>
             </tr>
             <tr>
