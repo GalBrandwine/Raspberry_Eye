@@ -100,6 +100,9 @@ class SmartCamera:
             self.cap = cv2.VideoCapture(0)
             self.object_to_track = object_to_track
             self.__ncs_init()
+
+        except Exception as exception:
+            self.logger.error("In smart_camera.capture: {}".format(exception))
         except AttributeError as err:
             self.logger.error(err)
 
