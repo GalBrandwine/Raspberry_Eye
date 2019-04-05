@@ -168,8 +168,14 @@ class SmartCamera:
                 self.logger.info("Before graph.LoadTensor image type: {}".format(type(image)))
                 graph.LoadTensor(image, None)
                 (output, _) = graph.GetResult()
+
+            except Exception as INVALID_PARAMETERS:
+                self.logger.error(INVALID_PARAMETERS)
+                pass
+
             except TypeError as err:
                 pass
+
         else:
             self.logger.error("In predict. image is None...")
             return
