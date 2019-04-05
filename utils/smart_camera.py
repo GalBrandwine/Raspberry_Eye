@@ -171,7 +171,7 @@ class SmartCamera:
 
             except Exception as INVALID_PARAMETERS:
                 self.logger.error(INVALID_PARAMETERS)
-                pass
+                return
 
             except TypeError as err:
                 pass
