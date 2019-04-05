@@ -100,6 +100,7 @@ def gen(camera):
                 camera.toggle_camera_modes('smart_on')
 
         if release_camera is True:
+            release_camera = False
             camera.release()
             break
 
