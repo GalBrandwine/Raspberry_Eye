@@ -123,22 +123,22 @@ class SmartCamera:
             self.fps.update()
 
             # Start the NCS processing pipeline.
-           # self.__ncs_predict(image)
+            image_with_predictions = self.__ncs_predict(image)
 
             # todo: If self.object_to_track is not NONE, call gimbal.auto_tracker(self.object_to_track).
             # todo: DEVELOP gimbal module.
-            self.logger.info("smart camera tracking: {}".format(self.object_to_track))
+            # self.logger.info("smart camera tracking: {}".format(self.object_to_track))
             # We are using Motion JPEG, but OpenCV defaults to capture raw images,
             # so we must encode it into JPEG in order to correctly display the
             # video stream.
 
             # Display a piece of text to the frame (so we can benchmark)
             self.fps.stop()
-            cv2.putText(image, "FPS (smart): {:.2f}".format(self.fps.fps()), (10, 30),
+            cv2.putText(image_with_predictions, "FPS (smart): {:.2f}".format(self.fps.fps()), (10, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
-            self.frame = image.copy()
-            ret, jpeg = cv2.imencode('.jpg', image)
+            self.frame = image_with_predictions.copy()
+            ret, jpeg = cv2.imencode('.jpg', image_with_predictions)
             return jpeg.tobytes()
         else:
             self.logger.debug("in 'get_frame', video.read not success")
@@ -281,7 +281,7 @@ class SmartCamera:
 
             # update the FPS counter
             self.fps.update()
-
+            return frame
         # if there's a problem reading a frame, break gracefully
         except AttributeError as err:
             self.logger.error(err)
