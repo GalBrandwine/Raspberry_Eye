@@ -99,14 +99,14 @@ class SmartCamera:
         try:
             self.cap = cv2.VideoCapture(0)
             self.object_to_track = object_to_track
-            self.device.OpenDevice()
+            self.__ncs_init()
         except AttributeError as err:
             self.logger.error(err)
 
     def release(self):
         try:
+            # clean up camera capture, graph and device
             self.cap.release()
-            # clean up the graph and device
             self.graph.DeallocateGraph()
             self.device.CloseDevice()
 
@@ -235,12 +235,13 @@ class SmartCamera:
         self.logger.info("[INFO] found {} devices. device0 will be used. "
                          "opening device0...".format(len(self.devices)))
         self.device = mvnc.Device(self.devices[0])
-        #self.device.OpenDevice()
+        self.device.OpenDevice()
 
-        # open the CNN graph file
-        self.logger.info("[INFO] loading the graph file into RPi memory...")
-        with open(graph_path, mode="rb") as f:
-            self.graph_in_memory = f.read()
+        if self.graph_in_memory is None:
+            # open the CNN graph file
+            self.logger.info("[INFO] loading the graph file into RPi memory...")
+            with open(graph_path, mode="rb") as f:
+                self.graph_in_memory = f.read()
 
         # load the graph into the NCS
         self.logger.info("[INFO] allocating the graph on the NCS...")
