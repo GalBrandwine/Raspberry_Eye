@@ -66,6 +66,7 @@ def gen(camera):
     global smart_toggle_global
     global tom_toggle
     global mufasa_toggle
+    global release_camera
 
     temp_smart_camera_toggle = smart_toggle_global
     temp_tom_toggle = tom_toggle
@@ -162,6 +163,7 @@ def smart_toggle(smart_toggle_input):
     global mufasa_toggle
     global smart_toggle_global
     global tom_toggle
+    global release_camera
 
     message = "In smart_toggle. {}".format(smart_toggle_input)
     # Toggle smart_toggle_global
@@ -193,7 +195,7 @@ def smart_toggle(smart_toggle_input):
 
     if smart_toggle_input == "release_camera":
         release_camera = True
-        message = message + " is now {}".format(mufasa_toggle)
+        message = message + " is now {}".format(release_camera)
     print(message)
     return "Pressed"
 
