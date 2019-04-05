@@ -110,6 +110,9 @@ class SmartCamera:
             self.graph.DeallocateGraph()
             self.device.CloseDevice()
 
+        except Exception as exception:
+            self.logger.error("In smart_camera.release: {}".format(exception))
+
         except AttributeError as err:
             self.logger.error(err)
 
