@@ -244,6 +244,7 @@ class SmartCamera:
             # make a copy of the frame and resize it for display/video purposes
             frame = frame
             image_for_result = frame.copy()
+            image_for_result = cv2.resize(image_for_result, DISPLAY_DIMS)
 
             # use the NCS to acquire predictions
             predictions = self.__predict(frame, self.graph)
