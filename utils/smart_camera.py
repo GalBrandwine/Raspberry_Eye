@@ -81,6 +81,7 @@ class SmartCamera:
         """
         self.graph_path = graph_path
         self.graph = None
+        self.device = None
         self.graph_in_memory = None
         self.object_to_track = None
 
@@ -225,18 +226,17 @@ class SmartCamera:
         # (you'll want to modify this is using multiple NCS devices)
         self.logger.info("[INFO] found {} devices. device0 will be used. "
                          "opening device0...".format(len(self.devices)))
-        device = mvnc.Device(self.devices[0])
-        device.OpenDevice()
+        self.device = mvnc.Device(self.devices[0])
+        self.device.OpenDevice()
 
         # open the CNN graph file
         self.logger.info("[INFO] loading the graph file into RPi memory...")
-        abs_path = os.path.abspath(graph_path)
         with open(graph_path, mode="rb") as f:
             self.graph_in_memory = f.read()
 
         # load the graph into the NCS
         self.logger.info("[INFO] allocating the graph on the NCS...")
-        self.graph = device.AllocateGraph(self.graph_in_memory)
+        self.graph = self.device.AllocateGraph(self.graph_in_memory)
 
     def __ncs_predict(self, frame=None):
         try:
