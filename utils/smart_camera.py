@@ -156,6 +156,8 @@ class SmartCamera:
         return preprocessed
 
     def __predict(self, image, graph):
+
+        predictions = []
         # preprocess the image
         image = self.__preprocess_image(image)
 
@@ -205,7 +207,7 @@ class SmartCamera:
             # create prediciton tuple and append the prediction to the
             # predictions list
             prediction = (pred_class, pred_conf, pred_boxpts)
-            self.predictions.append(prediction)
+            predictions.append(prediction)
 
         # return the list of predictions to the calling function
         return self.predictions
