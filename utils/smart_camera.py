@@ -93,7 +93,7 @@ class SmartCamera:
 
         # Get time of initiation.
         self.fps = FPS().start()
-        self.__ncs_init(self.graph_path)
+        # self.__ncs_init(self.graph_path)
 
     def capture(self, object_to_track=None):
         try:
@@ -246,7 +246,7 @@ class SmartCamera:
         if self.graph_in_memory is None:
             # open the CNN graph file
             self.logger.info("[INFO] loading the graph file into RPi memory...")
-            with open(graph_path, mode="rb") as f:
+            with open(self.graph_path, mode="rb") as f:
                 self.graph_in_memory = f.read()
 
         # load the graph into the NCS
