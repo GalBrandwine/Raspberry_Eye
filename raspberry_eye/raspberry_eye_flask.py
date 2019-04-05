@@ -194,7 +194,7 @@ def smart_toggle(smart_toggle_input):
     if smart_toggle_input == "release_camera":
         release_camera = True
         message = message + " is now {}".format(mufasa_toggle)
-    #    print(message)
+    print(message)
     return "Pressed"
 
 
