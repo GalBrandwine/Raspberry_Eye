@@ -99,6 +99,7 @@ class SmartCamera:
         try:
             self.cap = cv2.VideoCapture(0)
             self.object_to_track = object_to_track
+            self.device.OpenDevice()
         except AttributeError as err:
             self.logger.error(err)
 
@@ -234,7 +235,7 @@ class SmartCamera:
         self.logger.info("[INFO] found {} devices. device0 will be used. "
                          "opening device0...".format(len(self.devices)))
         self.device = mvnc.Device(self.devices[0])
-        self.device.OpenDevice()
+        #self.device.OpenDevice()
 
         # open the CNN graph file
         self.logger.info("[INFO] loading the graph file into RPi memory...")
@@ -259,7 +260,7 @@ class SmartCamera:
             except:
                 # there's a bug: mvns.INVALID_PARAMETERS
                 # if en exception thrown, return an unpredicted image.
-                cv2.putText(image_for_result, "FPS (smart): Error in predictions".format(self.fps.fps()), (10, 30),
+                cv2.putText(image_for_result, "             Error in predictions".format(self.fps.fps()), (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
 
                 return image_for_result
