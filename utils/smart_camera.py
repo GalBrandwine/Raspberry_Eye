@@ -163,22 +163,19 @@ class SmartCamera:
 
         # send the image to the NCS and run a forward pass to grab the
         # network predictions
-        if image is not None:
-            try:
-                self.logger.info("Before graph.LoadTensor image type: {}".format(type(image)))
-                graph.LoadTensor(image, None)
-                (output, _) = graph.GetResult()
+        try:
+            graph.LoadTensor(image, None)
+            (output, _) = graph.GetResult()
 
-            except Exception as INVALID_PARAMETERS:
-                self.logger.error(INVALID_PARAMETERS)
-                return
+        # Rolling the exception upward.
+        # except Exception as INVALID_PARAMETERS:
+        #     self.logger.error(INVALID_PARAMETERS)
+        #     return None
 
-            except TypeError as err:
-                pass
+        except TypeError as err:
+            self.logger.error(err)
+            pass
 
-        else:
-            self.logger.error("In predict. image is None...")
-            return
         # grab the number of valid object predictions from the output,
         # then initialize the list of predictions
         num_valid_boxes = output[0]
@@ -257,7 +254,15 @@ class SmartCamera:
             image_for_result = cv2.resize(image_for_result, DISPLAY_DIMS)
 
             # use the NCS to acquire predictions
-            predictions = self.__predict(frame, self.graph)
+            try:
+                predictions = self.__predict(frame, self.graph)
+            except:
+                # there's a bug: mvns.INVALID_PARAMETERS
+                # if en exception thrown, return an unpredicted image.
+                cv2.putText(image_for_result, "FPS (smart): Error in predictions".format(self.fps.fps()), (10, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+
+                return image_for_result
 
             # loop over our predictions
             for (i, pred) in enumerate(predictions):
@@ -268,9 +273,9 @@ class SmartCamera:
                 # is greater than the minimum confidence
                 if pred_conf > 0.5:
                     # self.logger.info prediction to terminal
-                    self.logger.info("[INFO] prediction #{}: class={}, confidence={}, "
-                                     "boxpoints={}".format(i, CLASSES[pred_class], pred_conf,
-                                                           pred_boxpts))
+                    # self.logger.info("[INFO] prediction #{}: class={}, confidence={}, "
+                    #                  "boxpoints={}".format(i, CLASSES[pred_class], pred_conf,
+                    #                                        pred_boxpts))
 
                     # build a label consisting of the predicted class and
                     # associated probability
