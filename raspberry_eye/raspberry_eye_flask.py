@@ -20,6 +20,7 @@ camera_logger.addHandler(ch)
 smart_toggle_global = False
 tom_toggle = False
 mufasa_toggle = False
+release_camera = False
 
 app = Flask(__name__)
 
@@ -97,8 +98,11 @@ def gen(camera):
             elif temp_smart_camera_toggle is True and temp_tom_toggle is False and temp_mufasa_toggle is False:
                 camera.toggle_camera_modes('smart_on')
 
-        frame = camera.read()
+        if release_camera is True:
+            camera.release()
+            break
 
+        frame = camera.read()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
@@ -187,7 +191,10 @@ def smart_toggle(smart_toggle_input):
         mufasa_toggle = False
         message = message + " is now {}".format(mufasa_toggle)
 
-    print(message)
+    if smart_toggle_input == "release_camera":
+        release_camera = True
+        message = message + " is now {}".format(mufasa_toggle)
+    #    print(message)
     return "Pressed"
 
 
@@ -207,4 +214,4 @@ def manual(motor, pulsewidth):
 # atexit.register(cleanup)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    app.run(host='0.0.0.0', port=8000, debug=True) # todo: remove debug when done

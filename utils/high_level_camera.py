@@ -34,13 +34,9 @@ class CameraModule:
         self.smart_flag = None
         self.simple_flag = True
 
-        # CameraModule will capture a frame, then pipe it to smart/simple cameras.
-        # self.capture = cv2.VideoCapture(0)
-        # self.capture.release
-
         self.simple_camera = SimpleCamera()
         self.smart_camera = SmartCamera("/home/gal/workspace/Raspberry_Eye/graphs/mobilenetgraph")
-        #self.smart_camera = SmartCamera("/media/gal/DATA/Documents/projects/Raspberry_Eye/graphs/mobilenetgraph")
+        # self.smart_camera = SmartCamera("/media/gal/DATA/Documents/projects/Raspberry_Eye/graphs/mobilenetgraph")
         self.init()
 
     def toggle_camera_modes(self, mode):
@@ -59,7 +55,7 @@ class CameraModule:
             self.logger.info("turning smart cam: ON")
             try:
                 if self.simple_flag is True:
-                    self.simple_flag  = False
+                    self.simple_flag = False
                     self.simple_camera.release()
                     time.sleep(1)
                     self.smart_camera.capture(None)
@@ -81,48 +77,37 @@ class CameraModule:
                 self.smart_camera.release()
                 time.sleep(1)
                 self.simple_camera.capture()
-            except:
-                pass
+            except Exception as err:
+                self.logger.error("Esception in toggle_camera_mode: {}".format(err))
+                return
 
         elif mode is "dog" and self.smart_flag is True:
-            """Then user wants to change camera mode to track_a_dog. accesible only if smart is on. """
-
-            # self.toggle_flag = True
+            """Then user wants to change camera mode to track_a_dog. accessible only if smart is on. """
             self.logger.info("turning smart cam: ON, in dog mode")
             self.smart_camera.object_to_track = mode
 
         elif mode is "cat" and self.smart_flag is True:
             """Then user wants to change camera mode to track_a_cat. accesible only if smart is on. """
-
             self.logger.info("turning smart cam: ON, in cat mode")
             self.smart_camera.object_to_track = mode
 
     def read(self):
         if self.simple_flag is True:
-            # self.logger.info("getting frame from simple cam")
             return self.simple_camera.read()
 
         elif self.smart_flag is True:
-            # self.logger.info("getting frame from smart cam")
             return self.smart_camera.read()
 
     def release(self):
         try:
-            self.simple_camera.release()
-        except:
-            pass
+            if self.simple_flag is True:
+                self.simple_camera.release()
+
+            if self.smart_flag is True:
+                self.smart_camera.release()
+        except Exception as err:
+            self.logger.error("Exception in release: {}".format(err))
 
     def init(self):
+        """Init hl_camera in simple mode."""
         self.simple_camera.capture()
-
-#     def show(self):
-#         """For debugging. """
-#         cv2.imshow(" ", self.frame)
-#         cv2.waitKey(0)
-#
-#
-# if __name__ == "__main__":
-#     camera_module = CameraModule()
-#     camera_module.read()
-#     camera_module.show()
-#     camera_module.capture.release()

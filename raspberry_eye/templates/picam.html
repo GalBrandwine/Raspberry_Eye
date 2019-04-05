@@ -8,6 +8,17 @@
                 width: 50%;
             }
 
+            /*Block Button*/
+            .block {
+              display: block;
+              width: 100%;
+              border: none;
+              background-color: #FF0000;
+              padding: 14px 28px;
+              font-size: 16px;
+              cursor: pointer;
+              text-align: center;
+            }
             /* The switch - the box around the slider */
             .switch {
               position: relative;
@@ -67,7 +78,9 @@
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
         <script language="javascript" type="text/javascript">
 
-
+            function Release_button(){
+                       $.ajax({ url: '/smart_toggle/' + 'release_camera' });
+            }
             function Button_onclick(direction) {
                 $.ajax({ url: '/move/' + direction });
             }
@@ -169,6 +182,11 @@
             <tr>
                 <td colspan="2" style="text-align: center">
                     <input id="btnDown" type="button" value="Down" onclick="Button_onclick('down')" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align: center">
+                     <input id="btnRelease" type="button" class="block" value="Exit    Exit    Exit     Exit    Exit    Exit" onclick="Release_button()" />
                 </td>
             </tr>
         </table>
