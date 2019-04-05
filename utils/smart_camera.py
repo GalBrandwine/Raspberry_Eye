@@ -82,9 +82,8 @@ class SmartCamera:
         self.graph_path = graph_path
         self.graph = None
         self.graph_in_memory = None
-        # self.devices = mvnc.EnumerateDevices()
         self.object_to_track = None
-        self.predictions = []
+
         self.logger = logging.getLogger('Smart_camera') if logger is None else logger
         self.grabbed = None
         self.frame = None
@@ -210,7 +209,7 @@ class SmartCamera:
             predictions.append(prediction)
 
         # return the list of predictions to the calling function
-        return self.predictions
+        return predictions
 
     def __ncs_init(self, graph_path=None, confidence=None, display=None):
         # grab a list of all NCS devices plugged in to USB
