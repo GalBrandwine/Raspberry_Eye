@@ -243,7 +243,7 @@ class SmartCamera:
             # make a copy of the frame and resize it for display/video purposes
             frame = frame
             image_for_result = frame.copy()
-            image_for_result = cv2.resize(image_for_result, DISPLAY_DIMS)
+            #image_for_result = cv2.resize(image_for_result, DISPLAY_DIMS)
 
             # use the NCS to acquire predictions
             predictions = self.__predict(frame, self.graph)
@@ -281,7 +281,7 @@ class SmartCamera:
 
             # update the FPS counter
             self.fps.update()
-            return frame
+            return image_for_result
         # if there's a problem reading a frame, break gracefully
         except AttributeError as err:
             self.logger.error(err)
