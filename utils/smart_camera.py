@@ -137,7 +137,7 @@ class SmartCamera:
             cv2.putText(image_with_predictions, "FPS (smart): {:.2f}".format(self.fps.fps()), (10, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
-            self.frame = image_with_predictions.copy()
+            #self.frame = image_with_predictions.copy()
             ret, jpeg = cv2.imencode('.jpg', image_with_predictions)
             return jpeg.tobytes()
         else:
@@ -243,7 +243,6 @@ class SmartCamera:
             # make a copy of the frame and resize it for display/video purposes
             frame = frame
             image_for_result = frame.copy()
-            #image_for_result = cv2.resize(image_for_result, DISPLAY_DIMS)
 
             # use the NCS to acquire predictions
             predictions = self.__predict(frame, self.graph)
