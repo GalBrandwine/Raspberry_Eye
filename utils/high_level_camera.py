@@ -39,6 +39,7 @@ class CameraModule:
         # self.capture.release
 
         self.simple_camera = SimpleCamera()
+        #self.smart_camera = SmartCamera("/home/gal/workspace/Raspberry_Eye/graphs/mobilenetgraph")
         self.smart_camera = SmartCamera("/media/gal/DATA/Documents/projects/Raspberry_Eye/graphs/mobilenetgraph")
         self.init()
 
