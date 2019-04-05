@@ -163,12 +163,15 @@ class SmartCamera:
 
         # send the image to the NCS and run a forward pass to grab the
         # network predictions
-        try:
-            graph.LoadTensor(image, None)
-            (output, _) = graph.GetResult()
-        except TypeError as err:
-            pass
-
+        if image is not  None:
+            try:
+                graph.LoadTensor(image, None)
+                (output, _) = graph.GetResult()
+            except TypeError as err:
+                pass
+        else:
+            self.logger.error("In predict. image is None...")
+            return
         # grab the number of valid object predictions from the output,
         # then initialize the list of predictions
         num_valid_boxes = output[0]
