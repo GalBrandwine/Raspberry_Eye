@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from utils.high_level_camera import CameraModule
+from raspberry_eye.high_level_camera import CameraModule
 
 
 class TestCameraModule:

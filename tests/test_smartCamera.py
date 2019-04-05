@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from utils.smart_camera import SmartCamera
+from raspberry_eye.smart_camera import SmartCamera
 
 
 class TestSmartCamera:

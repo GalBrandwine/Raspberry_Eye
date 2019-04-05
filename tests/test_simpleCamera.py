@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from utils.simple_camera import SimpleCamera
+from raspberry_eye.simple_camera import SimpleCamera
 
 
 class TestSimpleCamera:

@@ -7,8 +7,8 @@ then pass it to SimpleCamera & SmartCamera.
 import logging
 import time
 
-from utils.simple_camera import SimpleCamera
-from utils.smart_camera import SmartCamera
+from raspberry_eye.simple_camera import SimpleCamera
+from raspberry_eye.smart_camera import SmartCamera
 
 # Create loggers.
 logging.basicConfig(level=logging.INFO)

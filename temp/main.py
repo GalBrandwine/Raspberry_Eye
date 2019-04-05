@@ -1,5 +1,5 @@
 from flask import Flask, render_template, Response
-from utils.simple_camera import SimpleCamera
+from raspberry_eye.simple_camera import SimpleCamera
 
 app = Flask(__name__)
 

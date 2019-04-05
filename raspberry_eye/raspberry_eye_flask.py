@@ -5,7 +5,7 @@ from flask import Flask
 from flask import render_template
 from flask import Response
 
-from utils.high_level_camera import CameraModule
+from raspberry_eye.high_level_camera import CameraModule
 
 # Create loggers.
 camera_logger = logging.getLogger('camera_handler')
