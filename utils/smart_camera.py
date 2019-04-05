@@ -137,7 +137,7 @@ class SmartCamera:
             cv2.putText(image_with_predictions, "FPS (smart): {:.2f}".format(self.fps.fps()), (10, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
-            #self.frame = image_with_predictions.copy()
+            # self.frame = image_with_predictions.copy()
             ret, jpeg = cv2.imencode('.jpg', image_with_predictions)
             return jpeg.tobytes()
         else:
@@ -163,8 +163,9 @@ class SmartCamera:
 
         # send the image to the NCS and run a forward pass to grab the
         # network predictions
-        if image is not  None:
+        if image is not None:
             try:
+                self.logger.info("Before graph.LoadTensor image type: {}".format(type(image)))
                 graph.LoadTensor(image, None)
                 (output, _) = graph.GetResult()
             except TypeError as err:
