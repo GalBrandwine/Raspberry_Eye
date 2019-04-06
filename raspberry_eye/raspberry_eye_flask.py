@@ -217,4 +217,4 @@ def manual(motor, pulsewidth):
 # atexit.register(cleanup)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8000, debug=True) # todo: remove debug when done
+    app.run(host='0.0.0.0', port=8000, debug=False) # todo: remove debug when done

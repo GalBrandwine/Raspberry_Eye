@@ -48,7 +48,12 @@ To build Smart IP camera that will recognize my pets, that is gimbalised and con
 
       All tutorials work with 'imutils' package, which contains a benchmark tools.
       I achieved a 4.7 FPS with 'graph' converted from pretrained MobileNet model
-
+      
+  * Note:
+    * Most of the work i did on my laptop, and then git-pulled to raspberry. in order to successfully ssh to the rasbperry,
+    ive needed to prepare the [cd card for auto connecting to the wifi](https://www.raspberrypi.org/forums/viewtopic.php?t=191252).
+    
+    
 ## Building the flask web platform:
 * The platform will be able to Stream camera video feed from the raspberry.
 * The web platform will have the following interface:
