@@ -51,7 +51,7 @@ camera_logger.addHandler(ch)
 
 
 class SimpleCamera:
-    def __init__(self, logger=None):
+    def __init__(self, camera_index, logger=None):
         """Using OpenCV to cap from device 0.
 
         If you have trouble capturing
@@ -59,6 +59,7 @@ class SimpleCamera:
         instead.
         """
         self.logger = logging.getLogger('simple_camera') if logger is None else logger
+        self.camera_index=camera_index
         self.grabbed = None
         self.frame = None
         self.cap = None
@@ -68,7 +69,7 @@ class SimpleCamera:
 
     def capture(self):
         try:
-            self.cap = cv2.VideoCapture(0)
+            self.cap = cv2.VideoCapture(self.camera_index)
         except:
             pass
 

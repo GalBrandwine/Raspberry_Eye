@@ -23,7 +23,7 @@ camera_logger.addHandler(ch)
 
 class CameraModule:
 
-    def __init__(self, logger=None):
+    def __init__(self, camera_index=0, logger=None):
         """CameraModule is initiated with toggle_flag == True,
 
         which means it is sets to simple camera.
@@ -34,8 +34,8 @@ class CameraModule:
         self.smart_flag = None
         self.simple_flag = True
 
-        self.simple_camera = SimpleCamera()
-        self.smart_camera = SmartCamera("/home/gal/workspace/Raspberry_Eye/graphs/mobilenetgraph")
+        self.simple_camera = SimpleCamera(camera_index)
+        self.smart_camera = SmartCamera("/home/gal/workspace/Raspberry_Eye/graphs/mobilenetgraph", camera_index)
         # self.smart_camera = SmartCamera("/media/gal/DATA/Documents/projects/Raspberry_Eye/graphs/mobilenetgraph")
         self.init()
 

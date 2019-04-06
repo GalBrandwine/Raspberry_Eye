@@ -72,7 +72,7 @@ DISP_MULTIPLIER = DISPLAY_DIMS[0] // PREPROCESS_DIMS[0]
 
 # noinspection PyMethodMayBeStatic
 class SmartCamera:
-    def __init__(self, graph_path, logger=None):
+    def __init__(self, graph_path, camera_index, logger=None):
         """Using OpenCV to capture from device 0.
 
         If you have trouble capturing
@@ -80,6 +80,7 @@ class SmartCamera:
         instead.
         """
         self.graph_path = graph_path
+        self.camera_index = camera_index
         self.graph = None
         self.device = None
         self.graph_in_memory = None
@@ -97,7 +98,7 @@ class SmartCamera:
 
     def capture(self, object_to_track=None):
         try:
-            self.cap = cv2.VideoCapture(0)
+            self.cap = cv2.VideoCapture(self.camera_index)
             self.object_to_track = object_to_track
             self.__ncs_init()
 

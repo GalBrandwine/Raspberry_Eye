@@ -116,7 +116,7 @@ def video_feed():
      """
 
     # TODO: add global flag for determining which camera will be deployed: simple or smart.
-    return Response(gen(CameraModule(camera_logger)),
+    return Response(gen(CameraModule(0, camera_logger)),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
