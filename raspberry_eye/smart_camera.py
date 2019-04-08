@@ -99,6 +99,8 @@ class SmartCamera:
     def capture(self, object_to_track=None):
         try:
             self.cap = cv2.VideoCapture(self.camera_index)
+            # Get time of initiation.
+            self.fps = FPS().start()
             self.object_to_track = object_to_track
             self.__ncs_init()
 
@@ -113,6 +115,8 @@ class SmartCamera:
             self.cap.release()
             self.graph.DeallocateGraph()
             self.device.CloseDevice()
+            # Get time of initiation.
+            self.fps = FPS().stop()
 
         except Exception as exception:
             self.logger.error("In smart_camera.release: {}".format(exception))
@@ -132,18 +136,25 @@ class SmartCamera:
 
             # Start the NCS processing pipeline.
             image_with_predictions = self.__ncs_predict(image)
+            if image_with_predictions is None:
+                height, width = image.shape[:2]
+                image_with_predictions = np.zeros((height, width, 3), np.uint8)
 
-            # todo: If self.object_to_track is not NONE, call gimbal.auto_tracker(self.object_to_track).
-            # todo: DEVELOP gimbal module.
-            # self.logger.info("smart camera tracking: {}".format(self.object_to_track))
-            # We are using Motion JPEG, but OpenCV defaults to capture raw images,
-            # so we must encode it into JPEG in order to correctly display the
-            # video stream.
+                cv2.putText(image_with_predictions,
+                            "{}".format("Error in smart_camera.read: image_with_predictions=None"), (10, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+            else:
+                # todo: If self.object_to_track is not NONE, call gimbal.auto_tracker(self.object_to_track).
+                # todo: DEVELOP gimbal module.
+                # self.logger.info("smart camera tracking: {}".format(self.object_to_track))
+                # We are using Motion JPEG, but OpenCV defaults to capture raw images,
+                # so we must encode it into JPEG in order to correctly display the
+                # video stream.
 
-            # Display a piece of text to the frame (so we can benchmark)
-            self.fps.stop()
-            cv2.putText(image_with_predictions, "FPS (smart): {:.2f}".format(self.fps.fps()), (10, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+                # Display a piece of text to the frame (so we can benchmark)
+                self.fps.stop()
+                cv2.putText(image_with_predictions, "FPS (smart): {:.2f}".format(self.fps.fps()), (10, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
             # self.frame = image_with_predictions.copy()
             ret, jpeg = cv2.imencode('.jpg', image_with_predictions)
@@ -182,7 +193,7 @@ class SmartCamera:
 
         except TypeError as err:
             self.logger.error(err)
-            pass
+            return
 
         # grab the number of valid object predictions from the output,
         # then initialize the list of predictions
@@ -265,10 +276,11 @@ class SmartCamera:
             # use the NCS to acquire predictions
             try:
                 predictions = self.__predict(frame, self.graph)
-            except:
+            except TypeError as err:
+                self.logger.error("in __ncs_predict: {}".format(err))
                 # there's a bug: mvns.INVALID_PARAMETERS
                 # if en exception thrown, return an unpredicted image.
-                cv2.putText(image_for_result, "             Error in predictions".format(self.fps.fps()), (10, 30),
+                cv2.putText(image_for_result, "             {}".format(err), (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
 
                 return image_for_result

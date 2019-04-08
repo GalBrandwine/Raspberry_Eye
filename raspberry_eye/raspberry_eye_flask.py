@@ -105,6 +105,7 @@ def gen(camera):
             break
 
         frame = camera.read()
+
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
@@ -217,4 +218,4 @@ def manual(motor, pulsewidth):
 # atexit.register(cleanup)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8000, debug=False) # todo: remove debug when done
+    app.run(host='0.0.0.0', port=8000, debug=False, threaded=True)  # todo: remove debug when done
