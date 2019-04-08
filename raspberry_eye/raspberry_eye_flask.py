@@ -1,6 +1,6 @@
 # from RPIO import PWM
 import logging
-
+import time
 from flask import Flask
 from flask import render_template
 from flask import Response
@@ -53,8 +53,10 @@ pins = {
 # Load the main form template on web request for the root page
 @app.route('/', methods=('GET', 'POST'))
 def main():
+    timeNow = time.asctime(time.localtime(time.time()))
     # Create a template data dictionary to send any data to the template
     template_data = {
+        'time': timeNow,
         'title': 'PiCam_my'
     }
     # Pass the template data into the template picam.html and return it to the user
