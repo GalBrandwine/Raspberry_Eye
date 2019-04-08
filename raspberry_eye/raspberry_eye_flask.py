@@ -4,7 +4,8 @@ import time
 from flask import Flask
 from flask import render_template
 from flask import Response
-
+from flask import g
+from raspberry_eye.shared.flag_holder import FlagsHolder
 from raspberry_eye.high_level_camera import CameraModule
 
 # Create loggers.
@@ -16,13 +17,10 @@ ch.setFormatter(formatter)
 # add the handlers to loggers.
 camera_logger.addHandler(ch)
 
-# Globals:
-smart_toggle_global = False
-tom_toggle = False
-mufasa_toggle = False
-release_camera = False
-
+local_fh = FlagsHolder()
 app = Flask(__name__)
+
+
 
 
 # This function maps the angle we want to move the servo to, to the needed PWM value
@@ -63,46 +61,43 @@ def main():
     return render_template('picam.html', **template_data)
 
 
+
 def gen(camera):
     """Get frame from stream and preprocess before posting it on line. """
-    global smart_toggle_global
-    global tom_toggle
-    global mufasa_toggle
-    global release_camera
 
-    temp_smart_camera_toggle = smart_toggle_global
-    temp_tom_toggle = tom_toggle
-    temp_mufasa_toggle = mufasa_toggle
+    temp_smart_camera_toggle = local_fh.smart_toggle_global
+    temp_tom_toggle = local_fh.tom_toggle
+    temp_mufasa_toggle = local_fh.mufasa_toggle
 
     while True:
 
         # Update tom, mufasa, and smart toggles:
         # params: smart_on, smart_off (simple), cat, dog
-        if temp_smart_camera_toggle is not smart_toggle_global:
+        if temp_smart_camera_toggle is not local_fh.smart_toggle_global:
             # Smart toggle has changed.
-            temp_smart_camera_toggle = smart_toggle_global
+            temp_smart_camera_toggle = local_fh.smart_toggle_global
             if temp_smart_camera_toggle is True:
                 camera.toggle_camera_modes('smart_on')
             else:
                 camera.toggle_camera_modes('smart_off')
 
         # For tom, mufasa and other future objects, toggle them on ONLY if 'smart' is ON.
-        if temp_tom_toggle is not tom_toggle:
-            temp_tom_toggle = tom_toggle
+        if temp_tom_toggle is not local_fh.tom_toggle:
+            temp_tom_toggle = local_fh.tom_toggle
             if temp_smart_camera_toggle is True and temp_tom_toggle is True:
                 camera.toggle_camera_modes('cat')
             elif temp_smart_camera_toggle is True and temp_tom_toggle is False and temp_mufasa_toggle is False:
                 camera.toggle_camera_modes('smart_on')
 
-        if temp_mufasa_toggle is not mufasa_toggle:
-            temp_mufasa_toggle = mufasa_toggle
+        if temp_mufasa_toggle is not local_fh.mufasa_toggle:
+            temp_mufasa_toggle = local_fh.mufasa_toggle
             if temp_smart_camera_toggle is True and temp_mufasa_toggle is True:
                 camera.toggle_camera_modes('dog')
             elif temp_smart_camera_toggle is True and temp_tom_toggle is False and temp_mufasa_toggle is False:
                 camera.toggle_camera_modes('smart_on')
 
-        if release_camera is True:
-            release_camera = False
+        if local_fh.release_camera is True:
+            local_fh.release_camera = False
             camera.release()
             break
 
@@ -164,42 +159,37 @@ def move(direction):
 # The function below is executed when someone requests a URL with a smart_toggle button pressed
 @app.route("/smart_toggle/<smart_toggle_input>")
 def smart_toggle(smart_toggle_input):
-    global mufasa_toggle
-    global smart_toggle_global
-    global tom_toggle
-    global release_camera
-
     message = "In smart_toggle. {}".format(smart_toggle_input)
     # Toggle smart_toggle_global
     if smart_toggle_input == "smart_on":
-        smart_toggle_global = True
-        message = message + " is now {}".format(smart_toggle_global)
+        local_fh.smart_toggle_global = True
+        message = message + " is now {}".format(local_fh.smart_toggle_global)
 
     if smart_toggle_input == "smart_off":
-        smart_toggle_global = False
-        tom_toggle = False
-        mufasa_toggle = False
-        message = message + " is now {}".format(smart_toggle_global)
+        local_fh.smart_toggle_global = False
+        local_fh.tom_toggle = False
+        local_fh.mufasa_toggle = False
+        message = message + " is now {}".format(local_fh.smart_toggle_global)
 
     if smart_toggle_input == "tom_smart_on":
-        tom_toggle = True
-        mufasa_toggle = False
-        message = message + " is now {}".format(tom_toggle)
+        local_fh.tom_toggle = True
+        local_fh.mufasa_toggle = False
+        message = message + " is now {}".format(local_fh.tom_toggle)
     if smart_toggle_input == "tom_smart_off":
-        tom_toggle = False
-        message = message + " is now {}".format(tom_toggle)
+        local_fh.tom_toggle = False
+        message = message + " is now {}".format(local_fh.tom_toggle)
 
     if smart_toggle_input == "mufasa_smart_on":
-        mufasa_toggle = True
-        tom_toggle = False
-        message = message + " is now {}".format(mufasa_toggle)
+        local_fh.mufasa_toggle = True
+        local_fh.tom_toggle = False
+        message = message + " is now {}".format(local_fh.mufasa_toggle)
     if smart_toggle_input == "mufasa_smart_off":
-        mufasa_toggle = False
-        message = message + " is now {}".format(mufasa_toggle)
+        local_fh.mufasa_toggle = False
+        message = message + " is now {}".format(local_fh.mufasa_toggle)
 
     if smart_toggle_input == "release_camera":
-        release_camera = True
-        message = message + " is now {}".format(release_camera)
+        local_fh.release_camera = True
+        message = message + " is now {}".format(local_fh.release_camera)
     print(message)
     return "Pressed"
 
@@ -216,8 +206,11 @@ def manual(motor, pulsewidth):
     return "Moved"
 
 
-# Clean everything up when the app exits
-# atexit.register(cleanup)
-
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8000, debug=False, threaded=True)  # todo: remove debug when done
+
+"""For running vie terminal:
+
+cd ~/../../Raspberry_Eye/
+type into terminal: FLASK_APP=rasbperry_eye/raspberry_eye_flask.py flask run.
+"""
