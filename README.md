@@ -71,6 +71,10 @@ To build Smart IP camera that will recognize my pets, that is gimbalised and con
 
 
 # ___TEMPORARY README, work in progress:___
+  
+  # For building a client/server opencv streammer with tcp[Take a look at this tutorial](https://www.pyimagesearch.com/2019/04/15/live-video-streaming-over-network-with-opencv-and-imagezmq/?__s=hpwvpwmauc3ghqot4qpa)
+   this project can get commands down the stream, im sure!
+  
   # Flask video streamer
   Video streamer with image processing capabilities.
 
