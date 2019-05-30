@@ -35,7 +35,7 @@ class CameraModule:
         self.simple_flag = True
 
         self.simple_camera = SimpleCamera(camera_index)
-        self.smart_camera = SmartCamera("/home/gal/workspace/Raspberry_Eye/graphs/mobilenetgraph", camera_index)
+        self.smart_camera = SmartCamera("/home/pi/workspace/Raspberry_Eye/graphs/mobilenetgraph", camera_index)
         #self.smart_camera = SmartCamera("/media/gal/DATA/Documents/projects/Raspberry_Eye/graphs/mobilenetgraph", camera_index)
         self.init()
 

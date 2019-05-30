@@ -1,0 +1,3 @@
+[submodule "raspberry_eye/Gimbal_Pi"]
+	path = raspberry_eye/Gimbal_Pi
+	url = https://github.com/GalBrandwine/Gimbal_Pi.git
