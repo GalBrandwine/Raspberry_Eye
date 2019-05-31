@@ -7,6 +7,7 @@ from flask import Response
 from flask import g
 from raspberry_eye.shared.flag_holder import FlagsHolder
 from raspberry_eye.high_level_camera import CameraModule
+from raspberry_eye.smart_camera import SmartCamera
 
 # Create loggers.
 camera_logger = logging.getLogger('camera_handler')
@@ -65,46 +66,48 @@ def main():
 def gen(camera):
     """Get frame from stream and preprocess before posting it on line. """
 
-    temp_smart_camera_toggle = local_fh.smart_toggle_global
-    temp_tom_toggle = local_fh.tom_toggle
-    temp_mufasa_toggle = local_fh.mufasa_toggle
-
+    #temp_smart_camera_toggle = local_fh.smart_toggle_global
+    #temp_tom_toggle = local_fh.tom_toggle
+    #temp_mufasa_toggle = local_fh.mufasa_toggle
+    camera.capture("person")
+    
     while True:
 
         # Update tom, mufasa, and smart toggles:
         # params: smart_on, smart_off (simple), cat, dog
-        if temp_smart_camera_toggle is not local_fh.smart_toggle_global:
-            # Smart toggle has changed.
-            temp_smart_camera_toggle = local_fh.smart_toggle_global
-            if temp_smart_camera_toggle is True:
-                camera.toggle_camera_modes('smart_on')
-            else:
-                camera.toggle_camera_modes('smart_off')
+        #if temp_smart_camera_toggle is not local_fh.smart_toggle_global:
+            ## Smart toggle has changed.
+            #temp_smart_camera_toggle = local_fh.smart_toggle_global
+            #if temp_smart_camera_toggle is True:
+                #camera.toggle_camera_modes('smart_on')
+            #else:
+                #camera.toggle_camera_modes('smart_off')
 
-        # For tom, mufasa and other future objects, toggle them on ONLY if 'smart' is ON.
-        if temp_tom_toggle is not local_fh.tom_toggle:
-            temp_tom_toggle = local_fh.tom_toggle
-            if temp_smart_camera_toggle is True and temp_tom_toggle is True:
-                camera.toggle_camera_modes('cat')
-            elif temp_smart_camera_toggle is True and temp_tom_toggle is False and temp_mufasa_toggle is False:
-                camera.toggle_camera_modes('smart_on')
+        ## For tom, mufasa and other future objects, toggle them on ONLY if 'smart' is ON.
+        #if temp_tom_toggle is not local_fh.tom_toggle:
+            #temp_tom_toggle = local_fh.tom_toggle
+            #if temp_smart_camera_toggle is True and temp_tom_toggle is True:
+                #camera.toggle_camera_modes('cat')
+            #elif temp_smart_camera_toggle is True and temp_tom_toggle is False and temp_mufasa_toggle is False:
+                #camera.toggle_camera_modes('smart_on')
 
-        if temp_mufasa_toggle is not local_fh.mufasa_toggle:
-            temp_mufasa_toggle = local_fh.mufasa_toggle
-            if temp_smart_camera_toggle is True and temp_mufasa_toggle is True:
-                camera.toggle_camera_modes('dog')
-            elif temp_smart_camera_toggle is True and temp_tom_toggle is False and temp_mufasa_toggle is False:
-                camera.toggle_camera_modes('smart_on')
+        #if temp_mufasa_toggle is not local_fh.mufasa_toggle:
+            #temp_mufasa_toggle = local_fh.mufasa_toggle
+            #if temp_smart_camera_toggle is True and temp_mufasa_toggle is True:
+                #camera.toggle_camera_modes('dog')
+            #elif temp_smart_camera_toggle is True and temp_tom_toggle is False and temp_mufasa_toggle is False:
+                #camera.toggle_camera_modes('smart_on')
 
-        if local_fh.release_camera is True:
-            local_fh.release_camera = False
-            camera.release()
-            break
+        #if local_fh.release_camera is True:
+            #local_fh.release_camera = False
+            #camera.release()
+            #break
 
         frame = camera.read()
 
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+    
 
 
 @app.route('/video_feed')
@@ -114,9 +117,10 @@ def video_feed():
      """
 
     # TODO: add global flag for determining which camera will be deployed: simple or smart.
-    return Response(gen(CameraModule(0, camera_logger)),
+    #return Response(gen(CameraModule(0, camera_logger)),
+    #                mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(gen(SmartCamera("/home/pi/workspace/Raspberry_Eye/graphs/mobilenetgraph", 0)),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
-
 
 # The function below is executed when someone requests a URL with a move direction
 @app.route("/move/<direction>")

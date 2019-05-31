@@ -146,7 +146,10 @@ class SmartCamera:
             else:
                 # todo: If self.object_to_track is not NONE, call gimbal.auto_tracker(self.object_to_track).
                 # todo: DEVELOP gimbal module.
-                # self.logger.info("smart camera tracking: {}".format(self.object_to_track))
+                if self.object_to_track is not None:
+                    self.logger.info("smart camera tracking: {}".format(self.object_to_track))
+                    
+                
                 # We are using Motion JPEG, but OpenCV defaults to capture raw images,
                 # so we must encode it into JPEG in order to correctly display the
                 # video stream.
